@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Massimo's Glitcher — a playful, private, browser-based image glitch editor."
+    />
+    <meta name="theme-color" content="#080b10" />
+    <title>Massimo’s Glitcher</title>
+  </head>
+  <body>
+    <div class="noise-layer" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="#" aria-label="Massimo's Glitcher home">
+        <img id="header-avatar" class="brand__avatar" alt="Massimo smiling" />
+        <span class="brand__copy">
+          <span class="brand__eyebrow">browser image lab // v1.0</span>
+          <span class="brand__title" data-text="Massimo’s Glitcher">Massimo’s Glitcher</span>
+        </span>
+      </a>
+      <span class="privacy-note"><i></i> Processing stays on your device</span>
+    </header>
+
+    <main class="app-shell">
+      <aside class="control-panel" aria-label="Image controls">
+        <section class="panel-section upload-section">
+          <div class="section-heading">
+            <span class="step-number">01</span>
+            <div>
+              <p class="kicker">Source signal</p>
+              <h2>Load an image</h2>
+            </div>
+          </div>
+
+          <div id="drop-zone" class="drop-zone" tabindex="0" role="button" aria-controls="file-input">
+            <input
+              id="file-input"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+              hidden
+            />
+            <span class="drop-zone__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img">
+                <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v5h14v-5" />
+              </svg>
+            </span>
+            <strong>Drop image here</strong>
+            <span>JPG, PNG or WebP · up to 25 MB</span>
+            <button id="browse-button" class="button button--small" type="button">Choose file</button>
+          </div>
+          <p id="upload-error" class="error-message" role="alert" hidden></p>
+        </section>
+
+        <section class="panel-section effects-section">
+          <div class="section-heading">
+            <span class="step-number">02</span>
+            <div>
+              <p class="kicker">Signal damage</p>
+              <h2>Dial the distortion</h2>
+            </div>
+          </div>
+
+          <fieldset id="effects-fieldset" class="effects-list" disabled>
+            <div class="effect-control" data-effect="rgbShift">
+              <div class="effect-control__top">
+                <label class="toggle-label"><input type="checkbox" data-toggle="rgbShift" checked /><span></span> RGB shift</label>
+                <output data-output="rgbShift">12</output>
+              </div>
+              <input aria-label="RGB shift amount" type="range" min="0" max="40" value="12" data-range="rgbShift" />
+              <div class="accent-line accent-line--cyan"></div>
+            </div>
+
+            <div class="effect-control" data-effect="slices">
+              <div class="effect-control__top">
+                <label class="toggle-label"><input type="checkbox" data-toggle="slices" checked /><span></span> Slice displacement</label>
+                <output data-output="slices">36</output>
+              </div>
+              <input aria-label="Slice displacement amount" type="range" min="0" max="100" value="36" data-range="slices" />
+              <div class="accent-line accent-line--magenta"></div>
+            </div>
+
+            <div class="effect-control" data-effect="pixelation">
+              <div class="effect-control__top">
+                <label class="toggle-label"><input type="checkbox" data-toggle="pixelation" /><span></span> Pixelation</label>
+                <output data-output="pixelation">8</output>
+              </div>
+              <input aria-label="Pixelation amount" type="range" min="2" max="32" value="8" data-range="pixelation" disabled />
+              <div class="accent-line accent-line--lime"></div>
+            </div>
+
+            <div class="effect-control" data-effect="scanlines">
+              <div class="effect-control__top">
+                <label class="toggle-label"><input type="checkbox" data-toggle="scanlines" checked /><span></span> Scanlines</label>
+                <output data-output="scanlines">28</output>
+              </div>
+              <input aria-label="Scanline amount" type="range" min="0" max="100" value="28" data-range="scanlines" />
+              <div class="accent-line accent-line--cyan"></div>
+            </div>
+
+            <div class="effect-control" data-effect="noise">
+              <div class="effect-control__top">
+                <label class="toggle-label"><input type="checkbox" data-toggle="noise" checked /><span></span> Static / noise</label>
+                <output data-output="noise">16</output>
+              </div>
+              <input aria-label="Static and noise amount" type="range" min="0" max="100" value="16" data-range="noise" />
+              <div class="accent-line accent-line--magenta"></div>
+            </div>
+          </fieldset>
+
+          <div class="randomize-row">
+            <img id="random-avatar" class="random-avatar" alt="Massimo looking surprised" />
+            <button id="randomize-button" class="button button--random" type="button" disabled>
+              <span aria-hidden="true">↝</span> Randomize
+            </button>
+          </div>
+        </section>
+      </aside>
+
+      <section class="preview-panel" aria-label="Image preview">
+        <div class="preview-toolbar">
+          <div>
+            <p class="kicker">Live output</p>
+            <div class="preview-title-row">
+              <h2>Preview monitor</h2>
+              <span id="render-status" class="status-pill"><i></i> Awaiting image</span>
+            </div>
+          </div>
+          <p id="image-meta" class="image-meta">No source loaded</p>
+        </div>
+
+        <div id="preview-stage" class="preview-stage">
+          <div class="corner corner--tl"></div>
+          <div class="corner corner--tr"></div>
+          <div class="corner corner--bl"></div>
+          <div class="corner corner--br"></div>
+          <canvas id="preview-canvas" aria-label="Glitched image preview" hidden></canvas>
+          <div id="empty-state" class="empty-state">
+            <div class="empty-state__halo"></div>
+            <img id="empty-avatar" alt="Massimo ready to glitch an image" />
+            <p class="kicker">No signal detected</p>
+            <h1>Feed me some pixels.</h1>
+            <p>Drop an image anywhere on this monitor<br />and let the beautiful damage begin.</p>
+            <button id="empty-upload-button" class="button button--primary" type="button">Select an image</button>
+          </div>
+          <div id="stage-drop-overlay" class="stage-drop-overlay" aria-hidden="true">
+            <strong>Release to load signal</strong>
+          </div>
+        </div>
+
+        <div class="preview-footer">
+          <div class="preview-actions">
+            <button id="reset-button" class="button button--ghost" type="button" disabled>
+              <span aria-hidden="true">↺</span> Reset
+            </button>
+            <button id="export-button" class="button button--primary" type="button" disabled>
+              Export PNG <span aria-hidden="true">↓</span>
+            </button>
+          </div>
+          <p>Preview may be reduced for speed. Export always uses the original dimensions.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>Massimo’s Glitcher</span>
+      <span>Made for beautiful accidents.</span>
+    </footer>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

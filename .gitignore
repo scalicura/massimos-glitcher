@@ -1,0 +1,20 @@
+node_modules/
+dist/
+.vite/
+*.log
+
+# Local environment files (keep a documented template if one is added later)
+.env
+.env.*
+!.env.example
+
+# Editor and operating-system metadata
+.vscode/
+.idea/
+.history/
+*.code-workspace
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+Desktop.ini
