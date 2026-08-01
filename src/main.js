@@ -1,10 +1,12 @@
 import './styles.css';
 import { closeImageSource, formatFileSize, loadImageFile } from './image-io.js';
 import { renderImage } from './renderer.js';
-import { exportPng } from './export.js';
+import { exportImage } from './export.js';
+import { cloneSettings, EFFECT_KEYS, PRESETS, settingsForPreset } from './presets.js';
 
 const avatarHappy = new URL('../assets/avatar-happy.png', import.meta.url).href;
 const avatarSurprised = new URL('../assets/avatar-surprised.png', import.meta.url).href;
+const HISTORY_LIMIT = 30;
 
 const elements = {
   fileInput: document.querySelector('#file-input'),
@@ -17,9 +19,17 @@ const elements = {
   emptyState: document.querySelector('#empty-state'),
   uploadError: document.querySelector('#upload-error'),
   effectsFieldset: document.querySelector('#effects-fieldset'),
+  presetFieldset: document.querySelector('#preset-fieldset'),
+  exportFieldset: document.querySelector('#export-fieldset'),
   randomizeButton: document.querySelector('#randomize-button'),
   resetButton: document.querySelector('#reset-button'),
+  undoButton: document.querySelector('#undo-button'),
+  redoButton: document.querySelector('#redo-button'),
   exportButton: document.querySelector('#export-button'),
+  exportFormat: document.querySelector('#export-format'),
+  exportQuality: document.querySelector('#export-quality'),
+  exportQualityOutput: document.querySelector('#export-quality-output'),
+  qualityControl: document.querySelector('#quality-control'),
   renderStatus: document.querySelector('#render-status'),
   imageMeta: document.querySelector('#image-meta'),
 };
@@ -29,12 +39,16 @@ document.querySelector('#empty-avatar').src = avatarHappy;
 document.querySelector('#random-avatar').src = avatarSurprised;
 
 const state = {
-  // This decoded source is never painted into or mutated. All renders copy from it.
+  // The decoded source is immutable. Preview, history, and export never paint into it.
   originalImage: null,
   renderFrame: null,
   isExporting: false,
   settings: readSettings(),
+  historyPast: [],
+  historyFuture: [],
 };
+
+const rangeHistorySnapshots = new WeakMap();
 
 function readSettings(seed = 3817) {
   const settings = { seed };
@@ -46,6 +60,57 @@ function readSettings(seed = 3817) {
     };
   });
   return settings;
+}
+
+function createSeed() {
+  const values = new Uint32Array(1);
+  crypto.getRandomValues(values);
+  return values[0];
+}
+
+function settingsMatch(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function updateHistoryButtons() {
+  const canEdit = Boolean(state.originalImage) && !state.isExporting;
+  elements.undoButton.disabled = !canEdit || state.historyPast.length === 0;
+  elements.redoButton.disabled = !canEdit || state.historyFuture.length === 0;
+}
+
+function recordHistory(previousSettings) {
+  if (settingsMatch(previousSettings, state.settings)) return;
+  state.historyPast.push(cloneSettings(previousSettings));
+  if (state.historyPast.length > HISTORY_LIMIT) state.historyPast.shift();
+  state.historyFuture = [];
+  updateHistoryButtons();
+}
+
+function clearHistory() {
+  state.historyPast = [];
+  state.historyFuture = [];
+  updateHistoryButtons();
+}
+
+function clearActivePreset() {
+  document.querySelectorAll('[data-preset]').forEach((button) => {
+    button.classList.remove('is-active');
+    button.removeAttribute('aria-pressed');
+  });
+}
+
+function syncControlsFromSettings() {
+  EFFECT_KEYS.forEach((key) => {
+    const setting = state.settings[key];
+    const control = document.querySelector(`[data-effect="${key}"]`);
+    const toggle = control.querySelector(`[data-toggle="${key}"]`);
+    const range = control.querySelector(`[data-range="${key}"]`);
+    toggle.checked = setting.enabled;
+    range.value = String(setting.value);
+    range.disabled = !setting.enabled;
+    control.querySelector(`[data-output="${key}"]`).value = String(setting.value);
+    control.classList.toggle('is-off', !setting.enabled);
+  });
 }
 
 function scheduleRender() {
@@ -68,6 +133,16 @@ function scheduleRender() {
   });
 }
 
+function enableEditorControls(enabled) {
+  elements.effectsFieldset.disabled = !enabled;
+  elements.presetFieldset.disabled = !enabled;
+  elements.exportFieldset.disabled = !enabled;
+  elements.randomizeButton.disabled = !enabled;
+  elements.resetButton.disabled = !enabled;
+  elements.exportButton.disabled = !enabled;
+  updateHistoryButtons();
+}
+
 async function handleFile(file) {
   hideError();
   setStatus('Decoding', 'working');
@@ -76,10 +151,8 @@ async function handleFile(file) {
     closeImageSource(state.originalImage?.source);
     state.originalImage = nextImage;
     elements.imageMeta.textContent = `${nextImage.width} × ${nextImage.height} · ${formatFileSize(nextImage.size)}`;
-    elements.effectsFieldset.disabled = false;
-    elements.randomizeButton.disabled = false;
-    elements.resetButton.disabled = false;
-    elements.exportButton.disabled = false;
+    enableEditorControls(true);
+    clearHistory();
     scheduleRender();
   } catch (error) {
     showError(error instanceof Error ? error.message : 'The image could not be loaded.');
@@ -109,45 +182,92 @@ function openFilePicker() {
 }
 
 function resetEffects() {
-  document.querySelectorAll('[data-effect]').forEach((control) => {
-    const key = control.dataset.effect;
-    const toggle = control.querySelector(`[data-toggle="${key}"]`);
-    const range = control.querySelector(`[data-range="${key}"]`);
-    toggle.checked = false;
-    range.disabled = true;
-    control.classList.add('is-off');
+  const previous = cloneSettings(state.settings);
+  EFFECT_KEYS.forEach((key) => {
+    state.settings[key].enabled = false;
   });
-  state.settings = readSettings(state.settings.seed);
+  clearActivePreset();
+  syncControlsFromSettings();
+  recordHistory(previous);
   scheduleRender();
 }
 
 function randomizeEffects() {
-  document.querySelectorAll('[data-effect]').forEach((control) => {
-    const key = control.dataset.effect;
-    const toggle = control.querySelector(`[data-toggle="${key}"]`);
-    const range = control.querySelector(`[data-range="${key}"]`);
+  const previous = cloneSettings(state.settings);
+  EFFECT_KEYS.forEach((key) => {
+    const range = document.querySelector(`[data-range="${key}"]`);
     const min = Number(range.min);
     const max = Number(range.max);
-    toggle.checked = true;
-    range.disabled = false;
-    range.value = String(Math.round(min + Math.random() * (max - min) * 0.78));
-    control.classList.remove('is-off');
-    control.querySelector(`[data-output="${key}"]`).value = range.value;
+    state.settings[key] = {
+      enabled: true,
+      value: Math.round(min + Math.random() * (max - min) * 0.82),
+    };
   });
-  state.settings = readSettings(state.settings.seed);
-  state.settings.seed = Math.floor(Math.random() * 0xffffffff);
+  state.settings.seed = createSeed();
+  clearActivePreset();
+  syncControlsFromSettings();
+  recordHistory(previous);
   scheduleRender();
+}
+
+function applyPreset(name, button) {
+  const previous = cloneSettings(state.settings);
+  state.settings = settingsForPreset(name, createSeed());
+  syncControlsFromSettings();
+  clearActivePreset();
+  button.classList.add('is-active');
+  button.setAttribute('aria-pressed', 'true');
+  recordHistory(previous);
+  scheduleRender();
+  setStatus(`${PRESETS[name].label} loaded`, 'ready');
+}
+
+function undo() {
+  if (state.historyPast.length === 0 || !state.originalImage) return;
+  state.historyFuture.push(cloneSettings(state.settings));
+  state.settings = state.historyPast.pop();
+  clearActivePreset();
+  syncControlsFromSettings();
+  updateHistoryButtons();
+  scheduleRender();
+}
+
+function redo() {
+  if (state.historyFuture.length === 0 || !state.originalImage) return;
+  state.historyPast.push(cloneSettings(state.settings));
+  state.settings = state.historyFuture.pop();
+  clearActivePreset();
+  syncControlsFromSettings();
+  updateHistoryButtons();
+  scheduleRender();
+}
+
+function updateExportControls() {
+  const format = elements.exportFormat.value;
+  const hasQuality = format !== 'png';
+  elements.qualityControl.classList.toggle('is-hidden', !hasQuality);
+  const label = format === 'jpeg' ? 'JPEG' : format === 'webp' ? 'WebP' : 'PNG';
+  elements.exportButton.innerHTML = `Export ${label} <span aria-hidden="true">↓</span>`;
 }
 
 async function handleExport() {
   if (!state.originalImage || state.isExporting) return;
   state.isExporting = true;
   elements.exportButton.disabled = true;
+  elements.exportFieldset.disabled = true;
   elements.exportButton.textContent = 'Rendering full size…';
-  setStatus('Exporting', 'working');
+  updateHistoryButtons();
+  setStatus('Exporting in background', 'working');
+
   try {
-    await exportPng(state.originalImage, state.settings);
-    setStatus('PNG exported', 'ready');
+    const format = elements.exportFormat.value;
+    const result = await exportImage(state.originalImage, state.settings, {
+      format,
+      quality: Number(elements.exportQuality.value) / 100,
+    });
+    const formatLabel = format === 'jpeg' ? 'JPEG' : format === 'webp' ? 'WebP' : 'PNG';
+    elements.exportButton.dataset.exportEngine = result.engine;
+    setStatus(`${formatLabel} exported`, 'ready');
   } catch (error) {
     showError(error instanceof Error ? error.message : 'Export failed.');
     setStatus('Export error', 'error');
@@ -155,8 +275,17 @@ async function handleExport() {
   } finally {
     state.isExporting = false;
     elements.exportButton.disabled = false;
-    elements.exportButton.innerHTML = 'Export PNG <span aria-hidden="true">↓</span>';
+    elements.exportFieldset.disabled = false;
+    updateExportControls();
+    updateHistoryButtons();
   }
+}
+
+function commitRangeHistory(range) {
+  const previous = rangeHistorySnapshots.get(range);
+  if (!previous) return;
+  recordHistory(previous);
+  rangeHistorySnapshots.delete(range);
 }
 
 elements.browseButton.addEventListener('click', (event) => {
@@ -174,26 +303,54 @@ elements.dropZone.addEventListener('keydown', (event) => {
 elements.fileInput.addEventListener('change', () => handleFile(elements.fileInput.files[0]));
 elements.resetButton.addEventListener('click', resetEffects);
 elements.randomizeButton.addEventListener('click', randomizeEffects);
+elements.undoButton.addEventListener('click', undo);
+elements.redoButton.addEventListener('click', redo);
 elements.exportButton.addEventListener('click', handleExport);
+
+document.querySelectorAll('[data-preset]').forEach((button) => {
+  button.addEventListener('click', () => applyPreset(button.dataset.preset, button));
+});
 
 document.querySelectorAll('[data-range]').forEach((range) => {
   range.addEventListener('input', () => {
+    if (!rangeHistorySnapshots.has(range)) {
+      rangeHistorySnapshots.set(range, cloneSettings(state.settings));
+    }
     const key = range.dataset.range;
     document.querySelector(`[data-output="${key}"]`).value = range.value;
     state.settings = readSettings(state.settings.seed);
+    clearActivePreset();
     scheduleRender();
   });
+  range.addEventListener('change', () => commitRangeHistory(range));
+  range.addEventListener('blur', () => commitRangeHistory(range));
 });
 
 document.querySelectorAll('[data-toggle]').forEach((toggle) => {
   toggle.addEventListener('change', () => {
+    const previous = cloneSettings(state.settings);
     const key = toggle.dataset.toggle;
     const range = document.querySelector(`[data-range="${key}"]`);
     range.disabled = !toggle.checked;
     toggle.closest('.effect-control').classList.toggle('is-off', !toggle.checked);
     state.settings = readSettings(state.settings.seed);
+    clearActivePreset();
+    recordHistory(previous);
     scheduleRender();
   });
+});
+
+elements.exportFormat.addEventListener('change', updateExportControls);
+elements.exportQuality.addEventListener('input', () => {
+  elements.exportQualityOutput.value = elements.exportQuality.value;
+});
+
+document.addEventListener('keydown', (event) => {
+  if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'z') return;
+  if (!state.originalImage) return;
+  event.preventDefault();
+  if (event.shiftKey) redo();
+  else undo();
 });
 
 let dragDepth = 0;
@@ -227,7 +384,6 @@ let dragDepth = 0;
 
 window.addEventListener('beforeunload', () => closeImageSource(state.originalImage?.source));
 
-// Reflect initially disabled pixelation in the visual treatment.
-document.querySelectorAll('[data-toggle]').forEach((toggle) => {
-  toggle.closest('.effect-control').classList.toggle('is-off', !toggle.checked);
-});
+syncControlsFromSettings();
+updateExportControls();
+enableEditorControls(false);
