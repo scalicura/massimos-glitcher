@@ -79,6 +79,7 @@ button { color: inherit; }
   margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(300px, 350px) minmax(0, 1fr);
+  align-items: start;
 }
 
 .control-panel { border-right: 1px solid var(--line); background: rgba(11, 15, 21, .7); }
@@ -130,7 +131,35 @@ button { color: inherit; }
 .error-message { margin: 10px 0 0; color: var(--danger); font: 400 10px/1.5 var(--mono); }
 
 .effects-section { padding-bottom: 20px; }
+.preset-fieldset { min-width: 0; margin: 0 0 25px; padding: 0; border: 0; }
+.preset-fieldset legend, .control-group-label {
+  margin: 0 0 10px;
+  padding: 0;
+  color: #677483;
+  font: 500 9px/1.4 var(--mono);
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+.preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.preset-button {
+  min-width: 0;
+  min-height: 51px;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  background: #0a0e14;
+  color: var(--muted);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s, transform .15s;
+}
+.preset-button span { display: block; color: var(--text); font: 600 11px/1.2 var(--mono); letter-spacing: .07em; }
+.preset-button small { display: block; margin-top: 4px; font: 400 8px/1.2 var(--mono); text-transform: uppercase; letter-spacing: .05em; }
+.preset-button:hover:not(:disabled) { transform: translateY(-1px); border-color: var(--cyan); color: var(--cyan); }
+.preset-button.is-active { border-color: var(--lime); background: rgba(197, 242, 103, .06); color: var(--lime); }
+.preset-button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.preset-fieldset:disabled .preset-button { opacity: .35; cursor: not-allowed; }
 .effects-list { min-width: 0; margin: 0; padding: 0; border: 0; }
+.control-group-label--spaced { margin-top: 27px; padding-top: 19px; border-top: 1px solid var(--line); }
 .effect-control { position: relative; margin-bottom: 20px; transition: opacity .2s; }
 .effect-control.is-off { opacity: .45; }
 .effect-control__top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 11px; }
@@ -164,6 +193,21 @@ input[type='range']:focus-visible { outline: 1px solid var(--cyan); outline-offs
 
 .preview-panel { min-width: 0; padding: clamp(24px, 3vw, 42px); display: flex; flex-direction: column; }
 .preview-toolbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 18px; }
+.preview-toolbar__right { display: flex; align-items: flex-end; flex-direction: column; gap: 9px; }
+.history-actions { display: flex; gap: 6px; }
+.icon-button {
+  min-width: 68px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font: 500 9px/1 var(--mono);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.icon-button:hover:not(:disabled) { border-color: var(--cyan); color: var(--cyan); }
+.icon-button:disabled { opacity: .28; cursor: not-allowed; }
+.icon-button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .preview-title-row { display: flex; align-items: center; gap: 14px; }
 .status-pill { color: var(--muted); font: 400 9px/1 var(--mono); text-transform: uppercase; }
 .status-pill[data-mode='working'] i { background: var(--cyan); animation: pulse .7s infinite alternate; }
@@ -204,7 +248,26 @@ input[type='range']:focus-visible { outline: 1px solid var(--cyan); outline-offs
 .stage-drop-overlay { position: absolute; z-index: 5; inset: 12px; display: grid; place-items: center; border: 1px dashed var(--cyan); background: rgba(8, 11, 16, .91); color: var(--cyan); font: 500 13px/1 var(--mono); text-transform: uppercase; letter-spacing: .08em; opacity: 0; pointer-events: none; transition: opacity .15s; }
 .stage-drop-overlay.is-visible { opacity: 1; }
 
-.preview-footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-top: 17px; }
+.preview-footer { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; padding-top: 17px; }
+.export-cluster { display: flex; flex-direction: column; gap: 10px; }
+.export-settings { min-width: 0; margin: 0; padding: 0; border: 0; display: flex; align-items: flex-end; gap: 12px; }
+.export-settings > label { display: flex; flex-direction: column; gap: 5px; color: var(--muted); font: 500 8px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.export-settings select {
+  min-width: 92px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--line-bright);
+  border-radius: 0;
+  background: var(--surface);
+  color: var(--text);
+  font: 500 10px/1 var(--mono);
+  text-transform: uppercase;
+}
+.export-settings select:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.quality-control { min-width: 145px; position: relative; }
+.quality-control input { width: 110px; margin-top: 7px; }
+.quality-control output { position: absolute; right: 0; bottom: -1px; color: var(--text); }
+.quality-control.is-hidden { display: none; }
 .preview-actions { display: flex; gap: 10px; }
 .preview-footer > p { max-width: 420px; margin: 0; color: var(--muted); font: 400 9px/1.5 var(--mono); text-align: right; }
 .site-footer { min-height: 42px; padding: 0 clamp(18px, 4vw, 64px); border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; color: #596470; font: 400 9px/1 var(--mono); text-transform: uppercase; letter-spacing: .07em; }
@@ -227,6 +290,7 @@ input[type='range']:focus-visible { outline: 1px solid var(--cyan); outline-offs
   .brand__title { font-size: 20px; }
   .preview-panel { padding: 20px 14px; }
   .preview-toolbar { align-items: flex-start; }
+  .preview-toolbar__right { align-items: flex-end; }
   .image-meta { display: none; }
   .preview-title-row { display: block; }
   .status-pill { display: inline-block; margin-top: 8px; }
@@ -235,6 +299,7 @@ input[type='range']:focus-visible { outline: 1px solid var(--cyan); outline-offs
   .empty-state img { height: 150px; }
   .empty-state h1 { font-size: 27px; }
   .preview-footer { align-items: stretch; flex-direction: column; }
+  .export-settings { justify-content: space-between; }
   .preview-actions { display: grid; grid-template-columns: 1fr 1.4fr; }
   .preview-footer > p { text-align: left; }
   .control-panel { display: block; }

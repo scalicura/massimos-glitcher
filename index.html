@@ -17,7 +17,7 @@
       <a class="brand" href="#" aria-label="Massimo's Glitcher home">
         <img id="header-avatar" class="brand__avatar" alt="Massimo smiling" />
         <span class="brand__copy">
-          <span class="brand__eyebrow">browser image lab // v1.0</span>
+          <span class="brand__eyebrow">browser image lab // v2.0</span>
           <span class="brand__title" data-text="Massimo’s Glitcher">Massimo’s Glitcher</span>
         </span>
       </a>
@@ -63,7 +63,18 @@
             </div>
           </div>
 
+          <fieldset id="preset-fieldset" class="preset-fieldset" disabled>
+            <legend>Quick presets</legend>
+            <div class="preset-grid">
+              <button type="button" class="preset-button" data-preset="vhsTape"><span>VHS</span><small>1995 tape</small></button>
+              <button type="button" class="preset-button" data-preset="crtTerminal"><span>CRT</span><small>terminal glow</small></button>
+              <button type="button" class="preset-button" data-preset="arcade"><span>8-BIT</span><small>arcade mode</small></button>
+              <button type="button" class="preset-button" data-preset="dataRot"><span>ROT</span><small>data decay</small></button>
+            </div>
+          </fieldset>
+
           <fieldset id="effects-fieldset" class="effects-list" disabled>
+            <p class="control-group-label">Core transforms</p>
             <div class="effect-control" data-effect="rgbShift">
               <div class="effect-control__top">
                 <label class="toggle-label"><input type="checkbox" data-toggle="rgbShift" checked /><span></span> RGB shift</label>
@@ -108,6 +119,44 @@
               <input aria-label="Static and noise amount" type="range" min="0" max="100" value="16" data-range="noise" />
               <div class="accent-line accent-line--magenta"></div>
             </div>
+
+            <p class="control-group-label control-group-label--spaced">Era engines</p>
+
+            <div class="effect-control" data-effect="vhs">
+              <div class="effect-control__top">
+                <label class="toggle-label"><input type="checkbox" data-toggle="vhs" /><span></span> VHS tracking</label>
+                <output data-output="vhs">52</output>
+              </div>
+              <input aria-label="VHS tracking amount" type="range" min="0" max="100" value="52" data-range="vhs" disabled />
+              <div class="accent-line accent-line--magenta"></div>
+            </div>
+
+            <div class="effect-control" data-effect="crt">
+              <div class="effect-control__top">
+                <label class="toggle-label"><input type="checkbox" data-toggle="crt" /><span></span> CRT bloom</label>
+                <output data-output="crt">58</output>
+              </div>
+              <input aria-label="CRT bloom amount" type="range" min="0" max="100" value="58" data-range="crt" disabled />
+              <div class="accent-line accent-line--cyan"></div>
+            </div>
+
+            <div class="effect-control" data-effect="retroGame">
+              <div class="effect-control__top">
+                <label class="toggle-label"><input type="checkbox" data-toggle="retroGame" /><span></span> Retro game</label>
+                <output data-output="retroGame">64</output>
+              </div>
+              <input aria-label="Retro game amount" type="range" min="0" max="100" value="64" data-range="retroGame" disabled />
+              <div class="accent-line accent-line--lime"></div>
+            </div>
+
+            <div class="effect-control" data-effect="corruption">
+              <div class="effect-control__top">
+                <label class="toggle-label"><input type="checkbox" data-toggle="corruption" /><span></span> Data corruption</label>
+                <output data-output="corruption">48</output>
+              </div>
+              <input aria-label="Data corruption amount" type="range" min="0" max="100" value="48" data-range="corruption" disabled />
+              <div class="accent-line accent-line--magenta"></div>
+            </div>
           </fieldset>
 
           <div class="randomize-row">
@@ -128,7 +177,13 @@
               <span id="render-status" class="status-pill"><i></i> Awaiting image</span>
             </div>
           </div>
-          <p id="image-meta" class="image-meta">No source loaded</p>
+          <div class="preview-toolbar__right">
+            <div class="history-actions" aria-label="Edit history">
+              <button id="undo-button" class="icon-button" type="button" disabled aria-label="Undo last effect change">↶ <span>Undo</span></button>
+              <button id="redo-button" class="icon-button" type="button" disabled aria-label="Redo effect change">↷ <span>Redo</span></button>
+            </div>
+            <p id="image-meta" class="image-meta">No source loaded</p>
+          </div>
         </div>
 
         <div id="preview-stage" class="preview-stage">
@@ -151,13 +206,28 @@
         </div>
 
         <div class="preview-footer">
-          <div class="preview-actions">
+          <div class="export-cluster">
+            <fieldset id="export-fieldset" class="export-settings" disabled>
+              <label>Format
+                <select id="export-format" aria-label="Export format">
+                  <option value="png">PNG</option>
+                  <option value="jpeg">JPEG</option>
+                  <option value="webp">WebP</option>
+                </select>
+              </label>
+              <label id="quality-control" class="quality-control is-hidden">Quality
+                <input id="export-quality" aria-label="Export quality" type="range" min="40" max="100" value="92" />
+                <output id="export-quality-output">92</output>
+              </label>
+            </fieldset>
+            <div class="preview-actions">
             <button id="reset-button" class="button button--ghost" type="button" disabled>
               <span aria-hidden="true">↺</span> Reset
             </button>
             <button id="export-button" class="button button--primary" type="button" disabled>
               Export PNG <span aria-hidden="true">↓</span>
             </button>
+            </div>
           </div>
           <p>Preview may be reduced for speed. Export always uses the original dimensions.</p>
         </div>
