@@ -206,6 +206,7 @@ input[type='range']:focus-visible { outline: 1px solid var(--cyan); outline-offs
   cursor: pointer;
 }
 .icon-button:hover:not(:disabled) { border-color: var(--cyan); color: var(--cyan); }
+.icon-button.is-active { border-color: var(--lime); color: var(--lime); background: rgba(197, 242, 103, .06); }
 .icon-button:disabled { opacity: .28; cursor: not-allowed; }
 .icon-button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .preview-title-row { display: flex; align-items: center; gap: 14px; }
@@ -276,7 +277,7 @@ input[type='range']:focus-visible { outline: 1px solid var(--cyan); outline-offs
   .site-header { min-height: 76px; }
   .brand__avatar { width: 52px; height: 48px; }
   .privacy-note { display: none; }
-  .app-shell { display: flex; flex-direction: column-reverse; }
+  .app-shell { display: flex; flex-direction: column-reverse; align-items: stretch; }
   .control-panel { border-top: 1px solid var(--line); border-right: 0; display: grid; grid-template-columns: 1fr 1.15fr; }
   .panel-section { border-bottom: 0; }
   .upload-section { border-right: 1px solid var(--line); }

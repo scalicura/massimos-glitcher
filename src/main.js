@@ -1,6 +1,6 @@
 import './styles.css';
 import { closeImageSource, formatFileSize, loadImageFile } from './image-io.js';
-import { renderImage } from './renderer.js';
+import { renderImage, renderSourceImage } from './renderer.js';
 import { exportImage } from './export.js';
 import { cloneSettings, EFFECT_KEYS, PRESETS, settingsForPreset } from './presets.js';
 
@@ -23,6 +23,7 @@ const elements = {
   exportFieldset: document.querySelector('#export-fieldset'),
   randomizeButton: document.querySelector('#randomize-button'),
   resetButton: document.querySelector('#reset-button'),
+  compareButton: document.querySelector('#compare-button'),
   undoButton: document.querySelector('#undo-button'),
   redoButton: document.querySelector('#redo-button'),
   exportButton: document.querySelector('#export-button'),
@@ -34,16 +35,26 @@ const elements = {
   imageMeta: document.querySelector('#image-meta'),
 };
 
-document.querySelector('#header-avatar').src = avatarHappy;
-document.querySelector('#empty-avatar').src = avatarHappy;
-document.querySelector('#random-avatar').src = avatarSurprised;
+function assignMascot(selector, source) {
+  const image = document.querySelector(selector);
+  image.addEventListener('load', () => { image.hidden = false; });
+  // Mascots are decorative support: if an asset is unavailable, hide only the
+  // broken image and keep every editor control and message usable.
+  image.addEventListener('error', () => { image.hidden = true; });
+  image.src = source;
+}
+
+assignMascot('#header-avatar', avatarHappy);
+assignMascot('#empty-avatar', avatarHappy);
+assignMascot('#random-avatar', avatarSurprised);
 
 const state = {
   // The decoded source is immutable. Preview, history, and export never paint into it.
   originalImage: null,
   renderFrame: null,
   isExporting: false,
-  settings: readSettings(),
+  showingOriginal: false,
+  settings: readDefaultSettings(),
   historyPast: [],
   historyFuture: [],
 };
@@ -57,6 +68,18 @@ function readSettings(seed = 3817) {
     settings[key] = {
       enabled: control.querySelector(`[data-toggle="${key}"]`).checked,
       value: Number(control.querySelector(`[data-range="${key}"]`).value),
+    };
+  });
+  return settings;
+}
+
+function readDefaultSettings(seed = 3817) {
+  const settings = { seed };
+  document.querySelectorAll('[data-effect]').forEach((control) => {
+    const key = control.dataset.effect;
+    settings[key] = {
+      enabled: false,
+      value: Number(control.querySelector(`[data-range="${key}"]`).defaultValue),
     };
   });
   return settings;
@@ -119,10 +142,11 @@ function scheduleRender() {
   setStatus('Rendering', 'working');
   state.renderFrame = requestAnimationFrame(() => {
     try {
-      renderImage(elements.canvas, state.originalImage, state.settings);
+      if (state.showingOriginal) renderSourceImage(elements.canvas, state.originalImage);
+      else renderImage(elements.canvas, state.originalImage, state.settings);
       elements.canvas.hidden = false;
       elements.emptyState.hidden = true;
-      setStatus('Signal live', 'ready');
+      setStatus(state.showingOriginal ? 'Showing original' : 'Signal live', 'ready');
     } catch (error) {
       showError(error instanceof Error ? error.message : 'The preview could not be rendered.');
       setStatus('Render error', 'error');
@@ -139,6 +163,7 @@ function enableEditorControls(enabled) {
   elements.exportFieldset.disabled = !enabled;
   elements.randomizeButton.disabled = !enabled;
   elements.resetButton.disabled = !enabled;
+  elements.compareButton.disabled = !enabled;
   elements.exportButton.disabled = !enabled;
   updateHistoryButtons();
 }
@@ -150,6 +175,10 @@ async function handleFile(file) {
     const nextImage = await loadImageFile(file);
     closeImageSource(state.originalImage?.source);
     state.originalImage = nextImage;
+    state.showingOriginal = false;
+    elements.compareButton.classList.remove('is-active');
+    elements.compareButton.setAttribute('aria-pressed', 'false');
+    elements.compareButton.querySelector('span').textContent = 'Compare';
     elements.imageMeta.textContent = `${nextImage.width} × ${nextImage.height} · ${formatFileSize(nextImage.size)}`;
     enableEditorControls(true);
     clearHistory();
@@ -183,12 +212,23 @@ function openFilePicker() {
 
 function resetEffects() {
   const previous = cloneSettings(state.settings);
-  EFFECT_KEYS.forEach((key) => {
-    state.settings[key].enabled = false;
-  });
+  state.settings = readDefaultSettings();
+  state.showingOriginal = false;
+  elements.compareButton.classList.remove('is-active');
+  elements.compareButton.setAttribute('aria-pressed', 'false');
+  elements.compareButton.querySelector('span').textContent = 'Compare';
   clearActivePreset();
   syncControlsFromSettings();
   recordHistory(previous);
+  scheduleRender();
+}
+
+function toggleComparison() {
+  if (!state.originalImage || state.isExporting) return;
+  state.showingOriginal = !state.showingOriginal;
+  elements.compareButton.classList.toggle('is-active', state.showingOriginal);
+  elements.compareButton.setAttribute('aria-pressed', String(state.showingOriginal));
+  elements.compareButton.querySelector('span').textContent = state.showingOriginal ? 'Original' : 'Compare';
   scheduleRender();
 }
 
@@ -255,6 +295,7 @@ async function handleExport() {
   state.isExporting = true;
   elements.exportButton.disabled = true;
   elements.exportFieldset.disabled = true;
+  elements.compareButton.disabled = true;
   elements.exportButton.textContent = 'Rendering full size…';
   updateHistoryButtons();
   setStatus('Exporting in background', 'working');
@@ -267,7 +308,10 @@ async function handleExport() {
     });
     const formatLabel = format === 'jpeg' ? 'JPEG' : format === 'webp' ? 'WebP' : 'PNG';
     elements.exportButton.dataset.exportEngine = result.engine;
-    setStatus(`${formatLabel} exported`, 'ready');
+    elements.exportButton.dataset.exportSize = String(result.size);
+    elements.exportButton.dataset.exportWidth = String(state.originalImage.width);
+    elements.exportButton.dataset.exportHeight = String(state.originalImage.height);
+    setStatus(`${formatLabel} exported · ${formatFileSize(result.size)}`, 'ready');
   } catch (error) {
     showError(error instanceof Error ? error.message : 'Export failed.');
     setStatus('Export error', 'error');
@@ -276,6 +320,7 @@ async function handleExport() {
     state.isExporting = false;
     elements.exportButton.disabled = false;
     elements.exportFieldset.disabled = false;
+    elements.compareButton.disabled = false;
     updateExportControls();
     updateHistoryButtons();
   }
@@ -302,6 +347,7 @@ elements.dropZone.addEventListener('keydown', (event) => {
 });
 elements.fileInput.addEventListener('change', () => handleFile(elements.fileInput.files[0]));
 elements.resetButton.addEventListener('click', resetEffects);
+elements.compareButton.addEventListener('click', toggleComparison);
 elements.randomizeButton.addEventListener('click', randomizeEffects);
 elements.undoButton.addEventListener('click', undo);
 elements.redoButton.addEventListener('click', redo);

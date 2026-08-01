@@ -8,6 +8,7 @@ A private, browser-based image glitch editor built with Vite, vanilla JavaScript
 - Non-destructive rendering from the original decoded image
 - RGB separation, slice displacement, pixelation, scanlines, static/noise, VHS, CRT, retro-game, and corruption engines
 - VHS, CRT, 8-bit arcade, and data-rot presets
+- Toggleable original-image comparison for checking before and after output
 - Seeded random effects that stay stable between renders
 - 30-step settings history with Undo, Redo, and `Ctrl/Cmd+Z`
 - Reduced-resolution previews for large images
@@ -60,7 +61,7 @@ pnpm preview
 
 1. Drop a JPG, PNG, or WebP image onto the upload area or preview monitor, or choose **Select an image**.
 2. Choose a preset or combine individual effects. Every adjustment is re-rendered from the original image.
-3. Use **Undo** and **Redo** to move through settings changes, **Randomize** for a new seeded combination, or **Reset** for the unaltered image.
+3. Use **Compare** to toggle the immutable original, **Undo** and **Redo** to move through settings changes, **Randomize** for a new seeded combination, or **Reset** to restore the unaltered image and default control values.
 4. Select PNG, JPEG, or WebP, adjust quality when applicable, and export at the source image’s full dimensions.
 
 The upload limit is 25 MB. Very large source dimensions can still be constrained by the browser’s maximum canvas size or available memory during full-resolution export.

@@ -22,7 +22,12 @@ export async function loadImageFile(file) {
     throw new Error('That image is larger than 25 MB. Choose a smaller file.');
   }
 
-  const source = await decodeImage(file);
+  let source;
+  try {
+    source = await decodeImage(file);
+  } catch {
+    throw new Error('The image could not be decoded. It may be damaged.');
+  }
   const width = source.width || source.naturalWidth;
   const height = source.height || source.naturalHeight;
 

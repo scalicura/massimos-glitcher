@@ -15,10 +15,10 @@ export function getPreviewDimensions(width, height) {
 }
 
 /**
- * Every render clears the target and redraws the immutable source before applying
- * effects. This prevents cumulative quality loss when a control changes.
+ * Draw only the immutable source image. This is shared by the processed render
+ * path and the before/after comparison so both use identical preview sizing.
  */
-export function renderImage(canvas, imageRecord, settings, { fullResolution = false } = {}) {
+export function renderSourceImage(canvas, imageRecord, { fullResolution = false } = {}) {
   const dimensions = fullResolution
     ? { width: imageRecord.width, height: imageRecord.height, scale: 1 }
     : getPreviewDimensions(imageRecord.width, imageRecord.height);
@@ -30,6 +30,17 @@ export function renderImage(canvas, imageRecord, settings, { fullResolution = fa
   context.imageSmoothingEnabled = true;
   context.imageSmoothingQuality = 'high';
   context.drawImage(imageRecord.source, 0, 0, dimensions.width, dimensions.height);
+  return dimensions;
+}
+
+/**
+ * Every processed render clears the target and redraws the immutable source
+ * before applying effects. This prevents cumulative quality loss when a control
+ * changes.
+ */
+export function renderImage(canvas, imageRecord, settings, { fullResolution = false } = {}) {
+  const dimensions = renderSourceImage(canvas, imageRecord, { fullResolution });
+  const context = canvas.getContext('2d', { willReadFrequently: true });
   applyEffects(context, dimensions.width, dimensions.height, settings);
   return dimensions;
 }
