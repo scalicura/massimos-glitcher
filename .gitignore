@@ -18,3 +18,29 @@ dist/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Local verification and temporary media (keep intentional assets in assets/)
+verification-*.png
+verification-*.jpg
+verification-*.jpeg
+verification-*.webp
+verification-*.mp3
+verification-*.wav
+verification-*.ogg
+verification-*.m4a
+.temp-media/
+tmp-media/
+
+# Local cartridge images and emulator save/state files
+*.nes
+*.sfc
+*.smc
+*.bin
+*.rom
+*.sav
+*.save
+*.srm
+*.state*
+*.rtc
+.emulatorjs/
+emulator-temp/

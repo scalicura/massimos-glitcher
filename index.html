@@ -8,6 +8,8 @@
       content="Massimo's Glitcher — a playful, private, browser-based image glitch editor."
     />
     <meta name="theme-color" content="#080b10" />
+    <link rel="icon" type="image/png" href="./assets/avatar-happy.png" />
+    <link rel="apple-touch-icon" href="./assets/avatar-happy.png" />
     <title>Massimo’s Glitcher</title>
   </head>
   <body>
@@ -17,14 +19,20 @@
       <a class="brand" href="#" aria-label="Massimo's Glitcher home">
         <img id="header-avatar" class="brand__avatar" alt="Massimo smiling" />
         <span class="brand__copy">
-          <span class="brand__eyebrow">browser image lab // v2.0</span>
+          <span class="brand__eyebrow">browser media lab // v4.0</span>
           <span class="brand__title" data-text="Massimo’s Glitcher">Massimo’s Glitcher</span>
         </span>
       </a>
       <span class="privacy-note"><i></i> Processing stays on your device</span>
     </header>
 
-    <main class="app-shell">
+    <nav class="mode-nav" role="tablist" aria-label="Application workspace">
+      <button class="mode-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="image-workspace" data-workspace-target="image-workspace">Image Editor</button>
+      <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="audio-workspace" data-workspace-target="audio-workspace">Audio Studio</button>
+      <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="retro-workspace" data-workspace-target="retro-workspace">Retro Lab <span>4B</span></button>
+    </nav>
+
+    <main id="image-workspace" class="app-shell" data-workspace>
       <aside class="control-panel" aria-label="Image controls">
         <section class="panel-section upload-section">
           <div class="section-heading">
@@ -71,9 +79,36 @@
               <button type="button" class="preset-button" data-preset="arcade"><span>8-BIT</span><small>arcade mode</small></button>
               <button type="button" class="preset-button" data-preset="dataRot"><span>ROT</span><small>data decay</small></button>
             </div>
+            <div class="datamosh-preset-heading">
+              <span>Datamosh-inspired stills</span>
+              <img id="datamosh-avatar" alt="Massimo reacts to aggressive datamosh presets" />
+            </div>
+            <div class="preset-grid preset-grid--datamosh">
+              <button type="button" class="preset-button" data-preset="datamoshLite" title="Readable block motion with subtle local color drift"><span>MOSH LITE</span><small>readable motion</small></button>
+              <button type="button" class="preset-button preset-button--aggressive" data-preset="datamoshMeltdown" title="Heavy melt, echoes, and channel drift"><span>MELTDOWN <b>!</b></span><small>heavy codec decay</small></button>
+              <button type="button" class="preset-button" data-preset="brokenCodec" title="Block corruption and signal-band failure"><span>CODEC</span><small>broken stream</small></button>
+              <button type="button" class="preset-button" data-preset="frozenMotion" title="Persistent echoes and frame offsets"><span>FROZEN</span><small>motion trails</small></button>
+              <button type="button" class="preset-button preset-button--aggressive" data-preset="panicBroadcast" title="Severe broadcast-band and color failure"><span>PANIC <b>!</b></span><small>broadcast failure</small></button>
+            </div>
+            <div class="interface-art-note interface-art-note--presets" aria-hidden="true">
+              <img class="interface-art" src="./src/assets/interface-art/pixel-boy-glasses-wave.png" alt="" loading="lazy" decoding="async" draggable="false" />
+              <span><small>Preset scout</small><strong>Choose your damage</strong></span>
+            </div>
           </fieldset>
 
           <fieldset id="effects-fieldset" class="effects-list" disabled>
+            <div class="seed-panel">
+              <div>
+                <label for="seed-input">Deterministic seed</label>
+                <p>Same image, settings, dimensions, and seed reproduce the same damage.</p>
+              </div>
+              <div class="seed-panel__actions">
+                <input id="seed-input" type="text" inputmode="numeric" value="3817" aria-describedby="seed-message" />
+                <button id="new-seed-button" class="icon-button" type="button" title="Generate a new deterministic seed">New seed</button>
+              </div>
+              <p id="seed-message" class="inline-message" aria-live="polite">Active seed: 3817</p>
+            </div>
+
             <p class="control-group-label">Core transforms</p>
             <div class="effect-control" data-effect="rgbShift">
               <div class="effect-control__top">
@@ -157,6 +192,90 @@
               <input aria-label="Data corruption amount" type="range" min="0" max="100" value="48" data-range="corruption" disabled />
               <div class="accent-line accent-line--magenta"></div>
             </div>
+
+            <p class="control-group-label control-group-label--spaced">Datamosh-inspired still effects</p>
+
+            <details class="datamosh-effect effect-control is-off" data-effect="macroblock">
+              <summary><label class="toggle-label"><input type="checkbox" data-toggle="macroblock" /><span></span> Macroblock displacement</label><small>blocks</small></summary>
+              <p>Moves deterministic codec-like blocks without exposing blank canvas.</p>
+              <div class="parameter-grid">
+                <label>Block width <output data-output-param="blockWidth">48</output><input aria-label="Macroblock width" type="range" min="8" max="160" value="48" data-param="blockWidth" disabled /></label>
+                <label>Block height <output data-output-param="blockHeight">32</output><input aria-label="Macroblock height" type="range" min="4" max="120" value="32" data-param="blockHeight" disabled /></label>
+                <label>Displacement <output data-output-param="displacement">60</output><input aria-label="Macroblock displacement" type="range" min="0" max="240" value="60" data-param="displacement" disabled /></label>
+                <label>Density <output data-output-param="density">28</output><input aria-label="Macroblock density" type="range" min="1" max="100" value="28" data-param="density" disabled /></label>
+                <label>Horizontal bias <output data-output-param="horizontalBias">45</output><input aria-label="Macroblock horizontal bias" type="range" min="-100" max="100" value="45" data-param="horizontalBias" disabled /></label>
+                <label>Vertical bias <output data-output-param="verticalBias">0</output><input aria-label="Macroblock vertical bias" type="range" min="-100" max="100" value="0" data-param="verticalBias" disabled /></label>
+                <label class="parameter-grid__wide">Effect seed (0 = shared)<input aria-label="Macroblock random seed" type="number" min="0" max="4294967295" value="0" data-param="seed" disabled /></label>
+              </div>
+            </details>
+
+            <details class="datamosh-effect effect-control is-off" data-effect="compressionMelt">
+              <summary><label class="toggle-label"><input type="checkbox" data-toggle="compressionMelt" /><span></span> Compression melt</label><small>smear</small></summary>
+              <p>Smears blocks from a clean snapshot so iterations remain controlled.</p>
+              <div class="parameter-grid">
+                <label>Strength <output data-output-param="strength">54</output><input aria-label="Compression melt strength" type="range" min="0" max="100" value="54" data-param="strength" disabled /></label>
+                <label>Spread <output data-output-param="spread">72</output><input aria-label="Compression melt spread" type="range" min="0" max="240" value="72" data-param="spread" disabled /></label>
+                <label>Density <output data-output-param="density">30</output><input aria-label="Compression melt density" type="range" min="1" max="100" value="30" data-param="density" disabled /></label>
+                <label>Iterations <output data-output-param="iterations">3</output><input aria-label="Compression melt iterations" type="range" min="1" max="8" value="3" data-param="iterations" disabled /></label>
+                <label>Direction<select aria-label="Compression melt direction" data-param="direction" disabled><option value="horizontal">Horizontal</option><option value="vertical">Vertical</option><option value="mixed">Mixed</option></select></label>
+                <label>Effect seed (0 = shared)<input aria-label="Compression melt random seed" type="number" min="0" max="4294967295" value="0" data-param="seed" disabled /></label>
+              </div>
+            </details>
+
+            <details class="datamosh-effect effect-control is-off" data-effect="frameTear">
+              <summary><label class="toggle-label"><input type="checkbox" data-toggle="frameTear" /><span></span> Frame tear / offset</label><small>tears</small></summary>
+              <p>Duplicates horizontal or vertical strips with safe bounded offsets.</p>
+              <div class="parameter-grid">
+                <label>Tear count <output data-output-param="count">7</output><input aria-label="Frame tear count" type="range" min="1" max="32" value="7" data-param="count" disabled /></label>
+                <label>Thickness <output data-output-param="thickness">24</output><input aria-label="Frame tear thickness" type="range" min="1" max="120" value="24" data-param="thickness" disabled /></label>
+                <label>Offset <output data-output-param="offset">76</output><input aria-label="Frame tear offset" type="range" min="0" max="240" value="76" data-param="offset" disabled /></label>
+                <label>Opacity <output data-output-param="opacity">72</output><input aria-label="Frame tear opacity" type="range" min="5" max="100" value="72" data-param="opacity" disabled /></label>
+                <label>Blend intensity <output data-output-param="blend">52</output><input aria-label="Frame tear blend intensity" type="range" min="0" max="100" value="52" data-param="blend" disabled /></label>
+                <label>Orientation<select aria-label="Frame tear orientation" data-param="orientation" disabled><option value="horizontal">Horizontal</option><option value="vertical">Vertical</option><option value="mixed">Mixed</option></select></label>
+                <label class="parameter-grid__wide">Effect seed (0 = shared)<input aria-label="Frame tear random seed" type="number" min="0" max="4294967295" value="0" data-param="seed" disabled /></label>
+              </div>
+            </details>
+
+            <details class="datamosh-effect effect-control is-off" data-effect="regionalColorDrift">
+              <summary><label class="toggle-label"><input type="checkbox" data-toggle="regionalColorDrift" /><span></span> Regional color drift</label><small>local RGB</small></summary>
+              <p>Moves color channels only inside deterministic damaged regions.</p>
+              <div class="parameter-grid">
+                <label>Red offset <output data-output-param="redOffset">14</output><input aria-label="Regional red offset" type="range" min="-40" max="40" value="14" data-param="redOffset" disabled /></label>
+                <label>Green offset <output data-output-param="greenOffset">0</output><input aria-label="Regional green offset" type="range" min="-40" max="40" value="0" data-param="greenOffset" disabled /></label>
+                <label>Blue offset <output data-output-param="blueOffset">-14</output><input aria-label="Regional blue offset" type="range" min="-40" max="40" value="-14" data-param="blueOffset" disabled /></label>
+                <label>Region size <output data-output-param="regionSize">92</output><input aria-label="Regional color drift region size" type="range" min="8" max="220" value="92" data-param="regionSize" disabled /></label>
+                <label>Density <output data-output-param="density">26</output><input aria-label="Regional color drift density" type="range" min="1" max="100" value="26" data-param="density" disabled /></label>
+                <label>Direction<select aria-label="Regional color drift direction" data-param="direction" disabled><option value="horizontal">Horizontal</option><option value="vertical">Vertical</option><option value="mixed">Mixed</option></select></label>
+                <label class="parameter-grid__wide">Effect seed (0 = shared)<input aria-label="Regional color drift random seed" type="number" min="0" max="4294967295" value="0" data-param="seed" disabled /></label>
+              </div>
+            </details>
+
+            <details class="datamosh-effect effect-control is-off" data-effect="blockEcho">
+              <summary><label class="toggle-label"><input type="checkbox" data-toggle="blockEcho" /><span></span> Block echo trails</label><small>motion</small></summary>
+              <p>Repeats selected blocks to mimic single-frame motion persistence.</p>
+              <div class="parameter-grid">
+                <label>Echo count <output data-output-param="echoCount">4</output><input aria-label="Block echo count" type="range" min="1" max="10" value="4" data-param="echoCount" disabled /></label>
+                <label>Echo spacing <output data-output-param="spacing">24</output><input aria-label="Block echo spacing" type="range" min="1" max="100" value="24" data-param="spacing" disabled /></label>
+                <label>Block size <output data-output-param="blockSize">72</output><input aria-label="Block echo block size" type="range" min="8" max="200" value="72" data-param="blockSize" disabled /></label>
+                <label>Opacity falloff <output data-output-param="opacityFalloff">58</output><input aria-label="Block echo opacity falloff" type="range" min="5" max="100" value="58" data-param="opacityFalloff" disabled /></label>
+                <label>Region density <output data-output-param="density">24</output><input aria-label="Block echo region density" type="range" min="1" max="100" value="24" data-param="density" disabled /></label>
+                <label>Direction<select aria-label="Block echo direction" data-param="direction" disabled><option value="right">Right</option><option value="left">Left</option><option value="up">Up</option><option value="down">Down</option><option value="mixed">Mixed</option></select></label>
+                <label class="parameter-grid__wide">Effect seed (0 = shared)<input aria-label="Block echo random seed" type="number" min="0" max="4294967295" value="0" data-param="seed" disabled /></label>
+              </div>
+            </details>
+
+            <details class="datamosh-effect effect-control is-off" data-effect="signalBand">
+              <summary><label class="toggle-label"><input type="checkbox" data-toggle="signalBand" /><span></span> Signal band corruption</label><small>broadcast</small></summary>
+              <p>Damages horizontal bands with displacement, noise, and local color failure.</p>
+              <div class="parameter-grid">
+                <label>Band count <output data-output-param="bandCount">8</output><input aria-label="Signal band count" type="range" min="1" max="36" value="8" data-param="bandCount" disabled /></label>
+                <label>Band thickness <output data-output-param="bandThickness">14</output><input aria-label="Signal band thickness" type="range" min="1" max="100" value="14" data-param="bandThickness" disabled /></label>
+                <label>Displacement <output data-output-param="displacement">64</output><input aria-label="Signal band displacement" type="range" min="0" max="240" value="64" data-param="displacement" disabled /></label>
+                <label>Noise <output data-output-param="noise">28</output><input aria-label="Signal band noise" type="range" min="0" max="100" value="28" data-param="noise" disabled /></label>
+                <label>Color drift <output data-output-param="colorDrift">26</output><input aria-label="Signal band color drift" type="range" min="0" max="100" value="26" data-param="colorDrift" disabled /></label>
+                <label>Effect seed (0 = shared)<input aria-label="Signal band random seed" type="number" min="0" max="4294967295" value="0" data-param="seed" disabled /></label>
+              </div>
+            </details>
           </fieldset>
 
           <div class="randomize-row">
@@ -179,6 +298,7 @@
           </div>
           <div class="preview-toolbar__right">
             <div class="history-actions" aria-label="Edit history">
+              <button id="compare-button" class="icon-button" type="button" disabled aria-label="Toggle original image comparison" aria-pressed="false">◐ <span>Compare</span></button>
               <button id="undo-button" class="icon-button" type="button" disabled aria-label="Undo last effect change">↶ <span>Undo</span></button>
               <button id="redo-button" class="icon-button" type="button" disabled aria-label="Redo effect change">↷ <span>Redo</span></button>
             </div>
@@ -194,7 +314,11 @@
           <canvas id="preview-canvas" aria-label="Glitched image preview" hidden></canvas>
           <div id="empty-state" class="empty-state">
             <div class="empty-state__halo"></div>
-            <img id="empty-avatar" alt="Massimo ready to glitch an image" />
+            <figure class="empty-state__art">
+              <img class="interface-art interface-art--image-hero" src="./src/assets/interface-art/pixel-boy-butterfly.png" alt="" decoding="async" draggable="false" />
+              <img id="empty-avatar" class="empty-state__pilot" alt="Pixel-art portrait of Massimo ready to glitch an image" />
+              <figcaption><span>Signal pilot</span><strong>Standing by</strong></figcaption>
+            </figure>
             <p class="kicker">No signal detected</p>
             <h1>Feed me some pixels.</h1>
             <p>Drop an image anywhere on this monitor<br />and let the beautiful damage begin.</p>
@@ -232,6 +356,220 @@
           <p>Preview may be reduced for speed. Export always uses the original dimensions.</p>
         </div>
       </section>
+    </main>
+
+    <main id="audio-workspace" class="audio-studio" data-workspace hidden>
+      <header class="studio-header">
+        <div><p class="kicker">Local playback lab</p><h1>Audio Studio</h1></div>
+        <p>Soundboard files stay in this browser session. YouTube uses the official visible embedded player.</p>
+      </header>
+
+      <div class="audio-studio__grid">
+        <section class="studio-panel soundboard" aria-labelledby="soundboard-title">
+          <div class="studio-panel__heading">
+            <div><p class="kicker">Local sounds</p><h2 id="soundboard-title">Soundboard</h2></div>
+            <div class="stop-all-cluster"><img id="soundboard-stop-avatar" alt="Massimo ready to stop all sounds" /><button id="soundboard-stop-all" class="button button--danger" type="button" disabled>Stop All</button></div>
+          </div>
+
+          <fieldset class="master-controls" aria-label="Soundboard master controls">
+            <label>Master volume <output id="master-volume-output">100</output><input id="master-volume" type="range" min="0" max="100" value="100" /></label>
+            <button id="master-mute" class="button button--ghost" type="button" aria-pressed="false">Mute</button>
+            <button id="soundboard-clear" class="button button--ghost" type="button" disabled>Clear All</button>
+          </fieldset>
+
+          <div id="audio-drop-zone" class="audio-drop-zone" tabindex="0" role="button" aria-controls="audio-file-input">
+            <input id="audio-file-input" type="file" accept="audio/mpeg,audio/wav,audio/ogg,audio/mp4,.mp3,.wav,.ogg,.m4a" multiple hidden />
+            <strong>Drop audio files to build pads</strong>
+            <span>MP3, WAV, OGG, and browser-supported M4A · session only</span>
+            <button id="audio-browse-button" class="button button--small" type="button">Choose sounds</button>
+          </div>
+          <p id="soundboard-status" class="studio-message" aria-live="polite">No sound pads loaded.</p>
+
+          <div id="sound-pad-grid" class="sound-pad-grid" aria-live="polite"></div>
+          <div id="soundboard-empty" class="soundboard-empty">
+            <img class="interface-art soundboard-empty__scene" src="./src/assets/interface-art/pixel-boy-swing.png" alt="" loading="lazy" decoding="async" draggable="false" />
+            <div><strong>Your board is quiet.</strong><p>Add local files to create touch-friendly sound pads.</p></div>
+          </div>
+        </section>
+
+        <section class="studio-panel youtube-panel" aria-labelledby="youtube-title">
+          <div class="studio-panel__heading"><div><p class="kicker">Official embed</p><h2 id="youtube-title">YouTube Player</h2></div><span class="compliance-badge">Iframe API</span></div>
+          <form id="youtube-load-form" class="youtube-load-form">
+            <label for="youtube-input">YouTube URL, video ID, or playlist ID</label>
+            <div><input id="youtube-input" type="text" autocomplete="off" placeholder="https://youtu.be/… or playlist ID" /><button class="button button--primary" type="submit">Load</button></div>
+          </form>
+          <p id="youtube-message" class="studio-message" aria-live="polite">Enter a YouTube URL or ID. Playback never starts automatically.</p>
+
+          <div class="youtube-frame-shell">
+            <div id="youtube-player"><span>Official player will appear here.</span></div>
+          </div>
+
+          <div class="youtube-controls" aria-label="YouTube playback controls">
+            <button type="button" data-youtube-action="previous" disabled title="Previous playlist item">Previous</button>
+            <button type="button" data-youtube-action="play" disabled>Play</button>
+            <button type="button" data-youtube-action="pause" disabled>Pause</button>
+            <button type="button" data-youtube-action="stop" disabled>Stop</button>
+            <button type="button" data-youtube-action="restart" disabled>Restart</button>
+            <button type="button" data-youtube-action="next" disabled title="Next playlist item">Next</button>
+            <button type="button" data-youtube-action="mute" disabled aria-pressed="false">Mute</button>
+          </div>
+          <label class="youtube-volume">YouTube volume <output id="youtube-volume-output">100</output><input id="youtube-volume" type="range" min="0" max="100" value="100" disabled /></label>
+          <dl class="youtube-meta">
+            <div><dt>State</dt><dd id="youtube-state">No content</dd></div>
+            <div><dt>Loaded</dt><dd id="youtube-kind">None</dd></div>
+            <div><dt>Video ID</dt><dd id="youtube-video-id">—</dd></div>
+            <div><dt>Playlist ID</dt><dd id="youtube-playlist-id">—</dd></div>
+          </dl>
+          <div class="youtube-footer-actions">
+            <button id="youtube-open-button" class="button button--ghost" type="button" disabled>Open on YouTube</button>
+            <button id="youtube-clear-button" class="button button--ghost" type="button" disabled>Clear</button>
+          </div>
+          <p class="youtube-compliance">Visible official player only. No extraction, downloads, proxying, background playback, or export integration.</p>
+        </section>
+      </div>
+    </main>
+
+    <main id="retro-workspace" class="retro-lab" data-workspace hidden>
+      <header class="retro-header">
+        <div><p class="kicker">Local cartridge bay</p><h1>Retro Lab</h1></div>
+        <div class="retro-version"><span>EmulatorJS</span><strong>4.2.3 stable</strong></div>
+      </header>
+
+      <div class="retro-layout">
+        <aside class="retro-sidebar" aria-label="ROM and controller setup">
+          <section class="retro-card">
+            <div class="section-heading">
+              <span class="step-number">01</span>
+              <div><p class="kicker">Local cartridge</p><h2>Choose a ROM</h2></div>
+              <img class="interface-art retro-card__art" src="./src/assets/interface-art/pixel-boy-camo-hoodie.png" alt="" loading="lazy" decoding="async" draggable="false" aria-hidden="true" />
+            </div>
+
+            <div id="rom-drop-zone" class="rom-drop-zone" role="button" tabindex="0" aria-controls="rom-file-input">
+              <input id="rom-file-input" type="file" accept=".nes,.sfc,.smc,.bin,.rom" hidden />
+              <span class="rom-chip" aria-hidden="true">8/16</span>
+              <strong>Drop a local ROM</strong>
+              <span>NES .nes · SNES .sfc or .smc</span>
+              <button id="rom-choose-button" class="button button--small" type="button">Choose ROM</button>
+            </div>
+
+            <label class="retro-system-label" for="rom-system">System detection
+              <select id="rom-system">
+                <option value="auto">Auto detect</option>
+                <option value="nes">NES / Famicom</option>
+                <option value="snes">SNES / Super Famicom</option>
+              </select>
+            </label>
+
+            <div class="rom-file-summary">
+              <strong id="rom-file-name">No ROM selected</strong>
+              <span id="rom-file-meta">NES: .nes · SNES: .sfc or .smc</span>
+            </div>
+            <p id="retro-message" class="retro-message" role="status" aria-live="polite">ROMs run only in this browser tab and are released on unload.</p>
+            <div class="retro-load-actions">
+              <button id="rom-load-button" class="button button--primary" type="button" disabled>Load cartridge</button>
+              <button id="rom-unload-button" class="button button--ghost" type="button" disabled>Unload</button>
+            </div>
+          </section>
+
+          <section class="retro-card retro-effects-card" aria-labelledby="retro-effects-title">
+            <div class="section-heading">
+              <span class="step-number">02</span>
+              <div><p class="kicker">Signal processor</p><h2 id="retro-effects-title">Visual Effects</h2></div>
+            </div>
+
+            <label class="retro-effects-toggle" for="retro-effects-enabled">
+              <span><strong>Enable Effects</strong><small>Uses the EmulatorJS shader chain</small></span>
+              <input id="retro-effects-enabled" type="checkbox" role="switch" />
+            </label>
+
+            <label class="retro-system-label" for="retro-shader-preset">Shader preset
+              <select id="retro-shader-preset" aria-describedby="retro-preset-description"></select>
+            </label>
+
+            <div class="retro-preset-summary">
+              <div><strong id="retro-preset-name">Clean Pixels</strong><span id="retro-preset-cost">Low cost</span></div>
+              <p id="retro-preset-description">Nearest-neighbor presentation with no color or geometry changes.</p>
+            </div>
+
+            <div class="retro-effect-actions">
+              <button id="retro-effects-apply" class="button button--primary" type="button">Apply</button>
+              <button id="retro-effects-reset" class="button button--ghost" type="button">Reset to Clean Pixels</button>
+            </div>
+
+            <p id="retro-effects-status" class="retro-effects-status" role="status" aria-live="polite">Effects are off. The next cartridge will use clean output.</p>
+            <div id="retro-effects-warning" class="retro-effects-warning" role="status">
+              Fixed presets use one native-resolution shader pass. WebGL 1 is the compatibility baseline.
+            </div>
+            <div class="retro-effect-indicators" aria-label="Shader compatibility">
+              <span id="retro-webgl-mode">WebGL 1 baseline</span>
+              <span id="retro-restart-required" hidden>Restart required</span>
+            </div>
+            <p class="retro-capture-note">The player toolbar keeps clean PNG screenshots. Visible-effect capture is unavailable in EmulatorJS 4.2.3 without an undocumented canvas API.</p>
+          </section>
+
+          <section class="retro-card retro-controls-guide">
+            <div class="section-heading">
+              <span class="step-number">03</span>
+              <div><p class="kicker">Input deck</p><h2>Controls</h2></div>
+            </div>
+            <dl class="key-map">
+              <div><dt>D-pad</dt><dd>Arrow keys</dd></div>
+              <div><dt>A / B</dt><dd>Z / X</dd></div>
+              <div><dt>Start</dt><dd>Enter</dd></div>
+              <div><dt>Select</dt><dd>V</dd></div>
+              <div><dt>SNES X / Y</dt><dd>A / S</dd></div>
+              <div><dt>SNES L / R</dt><dd>Q / E</dd></div>
+            </dl>
+            <p>Open <strong>Controls</strong> in the emulator toolbar to remap the keyboard, assign a gamepad, or configure Player 2.</p>
+            <p id="gamepad-status" class="gamepad-status">Checking Gamepad API…</p>
+          </section>
+
+          <section class="retro-card retro-legal">
+            <p class="kicker">Legal + private</p>
+            <p>Use only ROMs you are legally entitled to run. No games, BIOS files, save files, or copyrighted ROM data are included.</p>
+            <p>ROM bytes stay in this tab. They are not uploaded, persisted, analyzed remotely, or added to image exports.</p>
+            <p>Powered by EmulatorJS and pinned FCEUmm/Snes9x cores. Provided without warranty. <a href="./THIRD_PARTY_LICENSES.md" target="_blank" rel="noreferrer">Licenses and source</a>.</p>
+          </section>
+        </aside>
+
+        <section class="retro-console" aria-label="Retro game player">
+          <div class="retro-console__toolbar">
+            <div><p class="kicker">Native video output</p><h2>Cartridge monitor</h2></div>
+            <span id="retro-status" class="status-pill"><i></i> No ROM loaded</span>
+          </div>
+
+          <div class="retro-stage">
+            <div id="retro-empty" class="retro-empty">
+              <div class="retro-empty__art" aria-hidden="true">
+                <img class="interface-art" src="./src/assets/interface-art/pixel-boy-saddle.png" alt="" loading="lazy" decoding="async" draggable="false" />
+                <span class="retro-empty__cartridge"><i></i></span>
+              </div>
+              <p class="kicker">Cartridge slot empty</p>
+              <h2>Insert a local signal.</h2>
+              <p>Choose a legally usable NES or SNES ROM.<br />Nothing leaves this browser tab.</p>
+            </div>
+            <div id="retro-frame-host" class="retro-frame-host" hidden></div>
+          </div>
+
+          <div class="retro-console__footer">
+            <p>The EmulatorJS toolbar supplies Start, Pause/Resume, Reset, volume, mute, fullscreen, clean PNG screenshots, in-memory states, and control remapping.</p>
+            <p>Switching tabs or hiding the page pauses active emulation. Returning never resumes audio automatically.</p>
+          </div>
+        </section>
+      </div>
+
+      <dialog id="shader-restart-dialog" class="retro-restart-dialog" aria-labelledby="shader-restart-title" aria-describedby="shader-restart-copy">
+        <form method="dialog">
+          <p class="kicker">Restart required</p>
+          <h2 id="shader-restart-title">Restart with shader?</h2>
+          <p id="shader-restart-copy">Applying this visual preset recreates the disposable emulator. Unsaved gameplay state will be lost.</p>
+          <p id="shader-restart-selection" class="retro-restart-selection"></p>
+          <div class="retro-restart-actions">
+            <button id="shader-restart-cancel" class="button button--ghost" type="submit" value="cancel">Cancel</button>
+            <button id="shader-restart-confirm" class="button button--primary" type="submit" value="restart">Restart with Shader</button>
+          </div>
+        </form>
+      </dialog>
     </main>
 
     <footer class="site-footer">
