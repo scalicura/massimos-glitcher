@@ -2,7 +2,7 @@
 
 Massimo's Glitcher is a private, browser-based media playground built with Vite, vanilla JavaScript, CSS, HTML5 Canvas, WebAssembly-powered emulation, and native browser media APIs. Images, soundboard files, and user-supplied ROMs stay on the device. There is no backend, account, paid API, or React dependency.
 
-## Checkpoint 4A: Retro Lab
+## Checkpoints 4A and 4B: Retro Lab
 
 Retro Lab runs locally supplied NES and SNES ROMs through a version-pinned, self-hosted EmulatorJS runtime:
 
@@ -16,9 +16,27 @@ To use it:
 1. Open **Retro Lab**.
 2. Drop a legally usable local ROM onto the cartridge area or choose **Choose ROM**.
 3. Leave system detection on **Auto**, or select NES/SNES to resolve an ambiguous extension.
-4. Select **Load cartridge**, then press **Start Game** inside the EmulatorJS player.
-5. Use the visible EmulatorJS toolbar for Pause/Resume, Restart, volume, mute, fullscreen, a clean emulator-only PNG screenshot, session save/load state, and control settings.
-6. Select **Unload** to destroy the emulator instance and release the ROM object URL.
+4. Leave **Enable Effects** off for the lowest-overhead native output, or enable it and choose one fixed visual preset.
+5. Select **Load cartridge**, then press **Start Game** inside the EmulatorJS player.
+6. To change the active effect, choose another preset and select **Apply**. Confirm the restart warning; recreating the emulator discards unsaved gameplay state but reuses the selected local ROM.
+7. Use the visible EmulatorJS toolbar for Pause/Resume, Restart, volume, mute, fullscreen, a clean emulator-only PNG screenshot, session save/load state, and control settings.
+8. Select **Unload** to destroy the emulator instance and release the ROM object URL.
+
+### Live visual effects
+
+Checkpoint 4B adds ten fixed presets grouped by expected GPU cost:
+
+- Low cost: **Clean Pixels**, **Consumer CRT**, **Arcade Monitor**, **Monochrome Terminal**, and **Handheld LCD**
+- Moderate cost: **Bad Composite Cable**, **VHS Game Capture**, **Broken Cartridge**, and **Corrupted Broadcast**
+- High cost: **Glitch Boss**
+
+Broken Cartridge, Corrupted Broadcast, and Glitch Boss are intentionally aggressive and can reduce gameplay visibility. **Reset to Clean Pixels** selects and applies the no-post-processing, nearest-neighbor Clean Pixels preset. To disable the shader chain entirely, turn off **Enable Effects** and select **Apply**.
+
+The effects use EmulatorJS's documented `EJS_shaders` option and Libretro `.glslp` shader format. Each preset is a single native-resolution, source-scaled WebGL fragment-shader pass with nearest-neighbor filtering. The shader is WebGL 1 compatible; EmulatorJS may choose WebGL 2 where supported. A detached 1-by-1 WebGL context compiles and links the local shader once before startup so malformed files fail safely; it never draws, presents, polls, or reads a frame. There is no second presentation canvas, synchronous framebuffer readback, per-frame JavaScript polling, or modification of EmulatorJS internals. If shader validation or the live WebGL context fails, the disposable player retries once with Effects Off.
+
+Only fixed presets are supported. Live outer-UI sliders are not included because EmulatorJS 4.2.3 does not document runtime shader-uniform updates. Retro Lab does not reuse the Image Editor's CPU Canvas effects on emulator frames, and it has no continuous `getImageData()`, `readPixels()`, or canvas-copy path. Its glitch modes are visual shader treatments; true codec-level datamoshing is not part of Retro Lab.
+
+EmulatorJS 4.2.3 does not document an API that captures the post-shader frame. The toolbar therefore continues to produce clean emulator-only PNG screenshots. Effected screenshots, recording, and video export are not included because adding them safely would require a supported post-shader output hook or a separate rendering pipeline.
 
 Default Player 1 keyboard bindings are Arrow keys for the D-pad, `Z`/`X` for A/B, `Enter` for Start, and `V` for Select. SNES additionally uses `A`/`S` for X/Y and `Q`/`E` for L/R. Open **Controls** in the emulator toolbar to remap keyboard input or assign connected gamepads. The EmulatorJS control panel exposes Player 2 mapping for NES and SNES; actual multi-controller behavior can vary by browser, controller, game, and core.
 
@@ -127,8 +145,11 @@ src/audio/soundboard.js         Playback, shortcuts, master controls, cleanup
 src/effects/                    Phase 3 datamosh-inspired effect modules
 src/random/seeded-random.js     Shared deterministic pseudo-random generator
 src/retro/player.js             Isolated EmulatorJS iframe configuration and session states
-src/retro/retro-lab.js          ROM UI, lifecycle, pause, Gamepad API, and object-URL cleanup
+src/retro/retro-lab.js          ROM/effect UI, restart/fallback lifecycle, pause, and cleanup
 src/retro/rom-validation.js     NES/SNES signature, extension, size, and override validation
+src/retro/shader-catalog.js     Fixed preset metadata, cost tiers, and warnings
+src/retro/shader-registry.js    EmulatorJS shader registration and selection validation
+src/retro/shaders/              Original WebGL-compatible shader and Libretro preset files
 src/youtube/youtube-player.js   Official IFrame API lifecycle and controls
 src/youtube/youtube-url-parser.js URL and direct-ID validation
 src/effects.js                  Ordered Canvas effect pipeline
@@ -144,6 +165,7 @@ retro-player.html               Disposable same-origin emulator entry page
 vite.config.js                  Multi-page build and explicit pinned emulator asset map
 THIRD_PARTY_LICENSES.md         Emulator/core versions, licenses, and source notices
 tests/rom-validation.test.js    Node-based ROM validation regression tests
+tests/shader-presets.test.js    Shader catalog, asset, and architecture regression tests
 ```
 
 ## Known limitations
@@ -155,11 +177,11 @@ tests/rom-validation.test.js    Node-based ROM validation regression tests
 - YouTube availability and playback behavior remain controlled by YouTube and the user's network/browser environment.
 - EmulatorJS core startup requires WebAssembly and downloads approximately 1 MB of locally hosted compressed core data when a cartridge starts. Older browsers may fall back to the legacy-WebAssembly build.
 - Fullscreen and Gamepad API behavior depends on browser permissions and device support. Mobile browsers may use EmulatorJS's virtual controls.
-- Save states are intentionally memory-only and do not survive unload or refresh. Battery-backed SRAM import/export and persistent saves are disabled in Checkpoint 4A.
+- WebGL feature support and shader performance depend on the browser, GPU, driver, core, and device. Effects Off is the supported lowest-overhead fallback.
+- The live pipeline was verified in a current Chromium/Edge-compatible browser. Its WebGL 1 shader format is intended as the Firefox/Safari compatibility baseline, but this checkpoint did not independently execute those engines or force EmulatorJS's optional WebGL 2 path.
+- The 390-pixel mobile layout stacks without horizontal overflow and leaves EmulatorJS controls unobscured. Physical touch controls and sustained mobile-GPU frame rate were not measured; use a low-cost preset or Effects Off if a high-cost effect stutters.
+- Changing an active shader requires an explicit emulator restart. There are no live effect sliders or runtime shader hot-swapping.
+- Save states are intentionally memory-only and do not survive unload, shader restart, or refresh. Battery-backed SRAM import/export and persistent saves are disabled.
 - Snes9x is licensed for personal/non-commercial use; commercial distribution requires permission from its copyright holders.
-- Retro Lab supports only NES and SNES in Checkpoint 4A. It includes no BIOS or game content.
-- This phase does not add live emulator effects, shaders, effected screenshots, recording, audio corruption, or additional console systems.
-
-## Checkpoint 4B remains planned, not implemented
-
-Before any live emulator effect work, inspect EmulatorJS `4.2.3`'s actual rendering surface and supported video hooks. Continuous effects must not reuse synchronous still-image `getImageData()` loops without frame-rate, latency, and audio-synchronization evidence. The preferred future design is a low-resolution emulator framebuffer feeding reusable WebGL textures and fragment shaders before presentation scaling. Checkpoint 4B requires separate authorization after 4A review, commit, and push.
+- Retro Lab supports only NES and SNES. It includes no BIOS or game content.
+- Effected screenshots, recording, codec-level corruption, audio corruption, per-game effect automation, and additional console systems are not included.

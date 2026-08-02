@@ -52,7 +52,7 @@ function assignMascot(selector, source) {
   image.src = source;
 }
 
-['#header-avatar', '#soundboard-empty-avatar'].forEach((selector) => assignMascot(selector, avatarHappy));
+assignMascot('#header-avatar', avatarHappy);
 ['#random-avatar', '#datamosh-avatar', '#soundboard-stop-avatar'].forEach((selector) => assignMascot(selector, avatarSurprised));
 assignMascot('#empty-avatar', massimoPixelPortrait);
 

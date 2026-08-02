@@ -29,7 +29,7 @@
     <nav class="mode-nav" role="tablist" aria-label="Application workspace">
       <button class="mode-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="image-workspace" data-workspace-target="image-workspace">Image Editor</button>
       <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="audio-workspace" data-workspace-target="audio-workspace">Audio Studio</button>
-      <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="retro-workspace" data-workspace-target="retro-workspace">Retro Lab <span>4A</span></button>
+      <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="retro-workspace" data-workspace-target="retro-workspace">Retro Lab <span>4B</span></button>
     </nav>
 
     <main id="image-workspace" class="app-shell" data-workspace>
@@ -89,6 +89,10 @@
               <button type="button" class="preset-button" data-preset="brokenCodec" title="Block corruption and signal-band failure"><span>CODEC</span><small>broken stream</small></button>
               <button type="button" class="preset-button" data-preset="frozenMotion" title="Persistent echoes and frame offsets"><span>FROZEN</span><small>motion trails</small></button>
               <button type="button" class="preset-button preset-button--aggressive" data-preset="panicBroadcast" title="Severe broadcast-band and color failure"><span>PANIC <b>!</b></span><small>broadcast failure</small></button>
+            </div>
+            <div class="interface-art-note interface-art-note--presets" aria-hidden="true">
+              <img class="interface-art" src="./src/assets/interface-art/pixel-boy-glasses-wave.png" alt="" loading="lazy" decoding="async" draggable="false" />
+              <span><small>Preset scout</small><strong>Choose your damage</strong></span>
             </div>
           </fieldset>
 
@@ -311,7 +315,8 @@
           <div id="empty-state" class="empty-state">
             <div class="empty-state__halo"></div>
             <figure class="empty-state__art">
-              <img id="empty-avatar" alt="Pixel-art portrait of Massimo ready to glitch an image" />
+              <img class="interface-art interface-art--image-hero" src="./src/assets/interface-art/pixel-boy-butterfly.png" alt="" decoding="async" draggable="false" />
+              <img id="empty-avatar" class="empty-state__pilot" alt="Pixel-art portrait of Massimo ready to glitch an image" />
               <figcaption><span>Signal pilot</span><strong>Standing by</strong></figcaption>
             </figure>
             <p class="kicker">No signal detected</p>
@@ -382,7 +387,7 @@
 
           <div id="sound-pad-grid" class="sound-pad-grid" aria-live="polite"></div>
           <div id="soundboard-empty" class="soundboard-empty">
-            <img id="soundboard-empty-avatar" alt="Massimo waiting for sound files" />
+            <img class="interface-art soundboard-empty__scene" src="./src/assets/interface-art/pixel-boy-swing.png" alt="" loading="lazy" decoding="async" draggable="false" />
             <div><strong>Your board is quiet.</strong><p>Add local files to create touch-friendly sound pads.</p></div>
           </div>
         </section>
@@ -436,6 +441,7 @@
             <div class="section-heading">
               <span class="step-number">01</span>
               <div><p class="kicker">Local cartridge</p><h2>Choose a ROM</h2></div>
+              <img class="interface-art retro-card__art" src="./src/assets/interface-art/pixel-boy-camo-hoodie.png" alt="" loading="lazy" decoding="async" draggable="false" aria-hidden="true" />
             </div>
 
             <div id="rom-drop-zone" class="rom-drop-zone" role="button" tabindex="0" aria-controls="rom-file-input">
@@ -465,9 +471,45 @@
             </div>
           </section>
 
-          <section class="retro-card retro-controls-guide">
+          <section class="retro-card retro-effects-card" aria-labelledby="retro-effects-title">
             <div class="section-heading">
               <span class="step-number">02</span>
+              <div><p class="kicker">Signal processor</p><h2 id="retro-effects-title">Visual Effects</h2></div>
+            </div>
+
+            <label class="retro-effects-toggle" for="retro-effects-enabled">
+              <span><strong>Enable Effects</strong><small>Uses the EmulatorJS shader chain</small></span>
+              <input id="retro-effects-enabled" type="checkbox" role="switch" />
+            </label>
+
+            <label class="retro-system-label" for="retro-shader-preset">Shader preset
+              <select id="retro-shader-preset" aria-describedby="retro-preset-description"></select>
+            </label>
+
+            <div class="retro-preset-summary">
+              <div><strong id="retro-preset-name">Clean Pixels</strong><span id="retro-preset-cost">Low cost</span></div>
+              <p id="retro-preset-description">Nearest-neighbor presentation with no color or geometry changes.</p>
+            </div>
+
+            <div class="retro-effect-actions">
+              <button id="retro-effects-apply" class="button button--primary" type="button">Apply</button>
+              <button id="retro-effects-reset" class="button button--ghost" type="button">Reset to Clean Pixels</button>
+            </div>
+
+            <p id="retro-effects-status" class="retro-effects-status" role="status" aria-live="polite">Effects are off. The next cartridge will use clean output.</p>
+            <div id="retro-effects-warning" class="retro-effects-warning" role="status">
+              Fixed presets use one native-resolution shader pass. WebGL 1 is the compatibility baseline.
+            </div>
+            <div class="retro-effect-indicators" aria-label="Shader compatibility">
+              <span id="retro-webgl-mode">WebGL 1 baseline</span>
+              <span id="retro-restart-required" hidden>Restart required</span>
+            </div>
+            <p class="retro-capture-note">The player toolbar keeps clean PNG screenshots. Visible-effect capture is unavailable in EmulatorJS 4.2.3 without an undocumented canvas API.</p>
+          </section>
+
+          <section class="retro-card retro-controls-guide">
+            <div class="section-heading">
+              <span class="step-number">03</span>
               <div><p class="kicker">Input deck</p><h2>Controls</h2></div>
             </div>
             <dl class="key-map">
@@ -498,7 +540,10 @@
 
           <div class="retro-stage">
             <div id="retro-empty" class="retro-empty">
-              <span class="retro-empty__cartridge" aria-hidden="true"><i></i></span>
+              <div class="retro-empty__art" aria-hidden="true">
+                <img class="interface-art" src="./src/assets/interface-art/pixel-boy-saddle.png" alt="" loading="lazy" decoding="async" draggable="false" />
+                <span class="retro-empty__cartridge"><i></i></span>
+              </div>
               <p class="kicker">Cartridge slot empty</p>
               <h2>Insert a local signal.</h2>
               <p>Choose a legally usable NES or SNES ROM.<br />Nothing leaves this browser tab.</p>
@@ -512,6 +557,19 @@
           </div>
         </section>
       </div>
+
+      <dialog id="shader-restart-dialog" class="retro-restart-dialog" aria-labelledby="shader-restart-title" aria-describedby="shader-restart-copy">
+        <form method="dialog">
+          <p class="kicker">Restart required</p>
+          <h2 id="shader-restart-title">Restart with shader?</h2>
+          <p id="shader-restart-copy">Applying this visual preset recreates the disposable emulator. Unsaved gameplay state will be lost.</p>
+          <p id="shader-restart-selection" class="retro-restart-selection"></p>
+          <div class="retro-restart-actions">
+            <button id="shader-restart-cancel" class="button button--ghost" type="submit" value="cancel">Cancel</button>
+            <button id="shader-restart-confirm" class="button button--primary" type="submit" value="restart">Restart with Shader</button>
+          </div>
+        </form>
+      </dialog>
     </main>
 
     <footer class="site-footer">

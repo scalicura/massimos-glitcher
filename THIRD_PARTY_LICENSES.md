@@ -1,6 +1,6 @@
 # Third-party emulator notices
 
-Massimo's Glitcher Checkpoint 4A self-hosts the following unmodified npm releases. The application includes no ROMs, BIOS files, save files, or game assets.
+Massimo's Glitcher Checkpoints 4A and 4B self-host the following unmodified npm releases. The application includes no ROMs, BIOS files, save files, or game assets.
 
 ## EmulatorJS 4.2.3
 
@@ -29,6 +29,13 @@ The core's own license text and build metadata are embedded in the published com
 - Upstream source and license: https://github.com/snes9xgit/snes9x
 
 Snes9x permits personal, non-commercial use and requires its copyright/license notices to remain with copies and derived work. Commercial users must obtain permission from the Snes9x copyright holders. The core's license text and build metadata are embedded in the published compressed core data.
+
+## Visual shader assets
+
+The `src/retro/shaders/` effect source and preset files are original Massimo's Glitcher project code. They use EmulatorJS's documented `EJS_shaders` configuration and the documented Libretro GLSL shader-preset format; no third-party shader source or shader binary is included. The pinned EmulatorJS runtime and core binaries remain unmodified.
+
+- EmulatorJS shader configuration: https://emulatorjs.org/docs/options
+- Libretro GLSL shader format: https://docs.libretro.com/development/shader/glsl-shaders/
 
 ## ROM and trademark notice
 
