@@ -405,6 +405,34 @@ input[type='range']:focus-visible { outline: 1px solid var(--cyan); outline-offs
 .youtube-footer-actions { margin-top: 12px; display: flex; gap: 8px; }
 .youtube-compliance { margin: 14px 0 0; color: #66727f; font: 400 8px/1.55 var(--mono); }
 
+@media (min-width: 901px) {
+  #image-workspace {
+    height: calc(100dvh - 174px);
+    min-height: 560px;
+    align-items: stretch;
+  }
+
+  .control-panel {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-bright) transparent;
+  }
+
+  .control-panel::-webkit-scrollbar { width: 8px; }
+  .control-panel::-webkit-scrollbar-track { background: transparent; }
+  .control-panel::-webkit-scrollbar-thumb { border: 2px solid transparent; background: var(--line-bright); background-clip: padding-box; }
+
+  .preview-panel {
+    min-height: 0;
+    height: 100%;
+  }
+
+  .preview-stage { min-height: 0; }
+}
+
 @media (max-width: 900px) {
   .site-header { min-height: 76px; }
   .brand__avatar { width: 52px; height: 48px; }
