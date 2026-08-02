@@ -1,6 +1,34 @@
 # Massimo's Glitcher
 
-Massimo's Glitcher is a private, browser-based media playground built with Vite, vanilla JavaScript, CSS, HTML5 Canvas, and native browser media APIs. Images and soundboard files stay on the device. There is no backend, account, paid API, or React dependency.
+Massimo's Glitcher is a private, browser-based media playground built with Vite, vanilla JavaScript, CSS, HTML5 Canvas, WebAssembly-powered emulation, and native browser media APIs. Images, soundboard files, and user-supplied ROMs stay on the device. There is no backend, account, paid API, or React dependency.
+
+## Checkpoint 4A: Retro Lab
+
+Retro Lab runs locally supplied NES and SNES ROMs through a version-pinned, self-hosted EmulatorJS runtime:
+
+- EmulatorJS `4.2.3` stable
+- FCEUmm core `4.2.3` for `.nes` files
+- Snes9x core `4.2.3` for `.sfc` and `.smc` files
+- `.bin` and `.rom` files are accepted only with an explicit NES/SNES override
+
+To use it:
+
+1. Open **Retro Lab**.
+2. Drop a legally usable local ROM onto the cartridge area or choose **Choose ROM**.
+3. Leave system detection on **Auto**, or select NES/SNES to resolve an ambiguous extension.
+4. Select **Load cartridge**, then press **Start Game** inside the EmulatorJS player.
+5. Use the visible EmulatorJS toolbar for Pause/Resume, Restart, volume, mute, fullscreen, a clean emulator-only PNG screenshot, session save/load state, and control settings.
+6. Select **Unload** to destroy the emulator instance and release the ROM object URL.
+
+Default Player 1 keyboard bindings are Arrow keys for the D-pad, `Z`/`X` for A/B, `Enter` for Start, and `V` for Select. SNES additionally uses `A`/`S` for X/Y and `Q`/`E` for L/R. Open **Controls** in the emulator toolbar to remap keyboard input or assign connected gamepads. The EmulatorJS control panel exposes Player 2 mapping for NES and SNES; actual multi-controller behavior can vary by browser, controller, game, and core.
+
+Save states are kept only in the active emulator iframe's memory. They disappear when the ROM is unloaded, the page is refreshed, or the tab closes. Persistent browser databases and EmulatorJS local-storage settings are disabled. Leaving Retro Lab or hiding the page pauses an active emulator; returning does not resume it automatically.
+
+Retro Lab does not hold a screen wake lock. This avoids permission failures in embedded or restricted browsers; normal browser/device sleep settings still apply.
+
+The emulator is isolated in a disposable same-origin iframe. Removing that iframe tears down the associated scripts, WebAssembly module, audio context, event listeners, and animation loop. Only one iframe and one revocable ROM object URL can exist at a time.
+
+Use only ROMs you are legally entitled to run. No ROMs, BIOS files, save files, or test media ship with the project. See [THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md) for exact package versions, licenses, source links, the Snes9x non-commercial-use restriction, and warranty notices.
 
 ## Phase 3 features
 
@@ -83,6 +111,12 @@ pnpm preview
 
 Vite writes the optimized static application to `dist/`. No server-side runtime is required.
 
+Run the static validation tests with:
+
+```bash
+pnpm test
+```
+
 ## Project structure
 
 ```text
@@ -92,6 +126,9 @@ src/audio/sound-pad.js          Semantic per-pad UI
 src/audio/soundboard.js         Playback, shortcuts, master controls, cleanup
 src/effects/                    Phase 3 datamosh-inspired effect modules
 src/random/seeded-random.js     Shared deterministic pseudo-random generator
+src/retro/player.js             Isolated EmulatorJS iframe configuration and session states
+src/retro/retro-lab.js          ROM UI, lifecycle, pause, Gamepad API, and object-URL cleanup
+src/retro/rom-validation.js     NES/SNES signature, extension, size, and override validation
 src/youtube/youtube-player.js   Official IFrame API lifecycle and controls
 src/youtube/youtube-url-parser.js URL and direct-ID validation
 src/effects.js                  Ordered Canvas effect pipeline
@@ -103,6 +140,10 @@ src/renderer.js                 Preview sizing and source-first rendering
 src/render-worker.js            OffscreenCanvas export worker
 src/styles.css                  Responsive retro interface
 index.html                      Semantic application markup
+retro-player.html               Disposable same-origin emulator entry page
+vite.config.js                  Multi-page build and explicit pinned emulator asset map
+THIRD_PARTY_LICENSES.md         Emulator/core versions, licenses, and source notices
+tests/rom-validation.test.js    Node-based ROM validation regression tests
 ```
 
 ## Known limitations
@@ -112,8 +153,13 @@ index.html                      Semantic application markup
 - Complex effect combinations on very large exports take longer; supported browsers use an OffscreenCanvas worker and fall back to the main thread if necessary.
 - Soundboard pads are not persisted, waveform editing and recording are not included, and M4A codec coverage varies by platform.
 - YouTube availability and playback behavior remain controlled by YouTube and the user's network/browser environment.
-- This phase processes still images only. There is no video input, timeline, frame processing, or video export.
+- EmulatorJS core startup requires WebAssembly and downloads approximately 1 MB of locally hosted compressed core data when a cartridge starts. Older browsers may fall back to the legacy-WebAssembly build.
+- Fullscreen and Gamepad API behavior depends on browser permissions and device support. Mobile browsers may use EmulatorJS's virtual controls.
+- Save states are intentionally memory-only and do not survive unload or refresh. Battery-backed SRAM import/export and persistent saves are disabled in Checkpoint 4A.
+- Snes9x is licensed for personal/non-commercial use; commercial distribution requires permission from its copyright holders.
+- Retro Lab supports only NES and SNES in Checkpoint 4A. It includes no BIOS or game content.
+- This phase does not add live emulator effects, shaders, effected screenshots, recording, audio corruption, or additional console systems.
 
-## Recommended Phase 4 scope
+## Checkpoint 4B remains planned, not implemented
 
-Keep Phase 4 focused on local workflow improvements: opt-in IndexedDB persistence for Soundboard pad metadata and file handles/blobs, import/export of board configurations, lightweight waveform previews, and reusable custom image-preset saving. Treat any true video editor or codec-level datamosh work as a separate, explicitly scoped project because it has very different performance, storage, and export requirements.
+Before any live emulator effect work, inspect EmulatorJS `4.2.3`'s actual rendering surface and supported video hooks. Continuous effects must not reuse synchronous still-image `getImageData()` loops without frame-rate, latency, and audio-synchronization evidence. The preferred future design is a low-resolution emulator framebuffer feeding reusable WebGL textures and fragment shaders before presentation scaling. Checkpoint 4B requires separate authorization after 4A review, commit, and push.

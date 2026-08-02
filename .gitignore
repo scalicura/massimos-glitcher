@@ -30,3 +30,17 @@ verification-*.ogg
 verification-*.m4a
 .temp-media/
 tmp-media/
+
+# Local cartridge images and emulator save/state files
+*.nes
+*.sfc
+*.smc
+*.bin
+*.rom
+*.sav
+*.save
+*.srm
+*.state*
+*.rtc
+.emulatorjs/
+emulator-temp/

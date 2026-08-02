@@ -19,7 +19,7 @@
       <a class="brand" href="#" aria-label="Massimo's Glitcher home">
         <img id="header-avatar" class="brand__avatar" alt="Massimo smiling" />
         <span class="brand__copy">
-          <span class="brand__eyebrow">browser media lab // v3.0</span>
+          <span class="brand__eyebrow">browser media lab // v4.0</span>
           <span class="brand__title" data-text="Massimo’s Glitcher">Massimo’s Glitcher</span>
         </span>
       </a>
@@ -29,6 +29,7 @@
     <nav class="mode-nav" role="tablist" aria-label="Application workspace">
       <button class="mode-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="image-workspace" data-workspace-target="image-workspace">Image Editor</button>
       <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="audio-workspace" data-workspace-target="audio-workspace">Audio Studio</button>
+      <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="retro-workspace" data-workspace-target="retro-workspace">Retro Lab <span>4A</span></button>
     </nav>
 
     <main id="image-workspace" class="app-shell" data-workspace>
@@ -419,6 +420,96 @@
             <button id="youtube-clear-button" class="button button--ghost" type="button" disabled>Clear</button>
           </div>
           <p class="youtube-compliance">Visible official player only. No extraction, downloads, proxying, background playback, or export integration.</p>
+        </section>
+      </div>
+    </main>
+
+    <main id="retro-workspace" class="retro-lab" data-workspace hidden>
+      <header class="retro-header">
+        <div><p class="kicker">Local cartridge bay</p><h1>Retro Lab</h1></div>
+        <div class="retro-version"><span>EmulatorJS</span><strong>4.2.3 stable</strong></div>
+      </header>
+
+      <div class="retro-layout">
+        <aside class="retro-sidebar" aria-label="ROM and controller setup">
+          <section class="retro-card">
+            <div class="section-heading">
+              <span class="step-number">01</span>
+              <div><p class="kicker">Local cartridge</p><h2>Choose a ROM</h2></div>
+            </div>
+
+            <div id="rom-drop-zone" class="rom-drop-zone" role="button" tabindex="0" aria-controls="rom-file-input">
+              <input id="rom-file-input" type="file" accept=".nes,.sfc,.smc,.bin,.rom" hidden />
+              <span class="rom-chip" aria-hidden="true">8/16</span>
+              <strong>Drop a local ROM</strong>
+              <span>NES .nes · SNES .sfc or .smc</span>
+              <button id="rom-choose-button" class="button button--small" type="button">Choose ROM</button>
+            </div>
+
+            <label class="retro-system-label" for="rom-system">System detection
+              <select id="rom-system">
+                <option value="auto">Auto detect</option>
+                <option value="nes">NES / Famicom</option>
+                <option value="snes">SNES / Super Famicom</option>
+              </select>
+            </label>
+
+            <div class="rom-file-summary">
+              <strong id="rom-file-name">No ROM selected</strong>
+              <span id="rom-file-meta">NES: .nes · SNES: .sfc or .smc</span>
+            </div>
+            <p id="retro-message" class="retro-message" role="status" aria-live="polite">ROMs run only in this browser tab and are released on unload.</p>
+            <div class="retro-load-actions">
+              <button id="rom-load-button" class="button button--primary" type="button" disabled>Load cartridge</button>
+              <button id="rom-unload-button" class="button button--ghost" type="button" disabled>Unload</button>
+            </div>
+          </section>
+
+          <section class="retro-card retro-controls-guide">
+            <div class="section-heading">
+              <span class="step-number">02</span>
+              <div><p class="kicker">Input deck</p><h2>Controls</h2></div>
+            </div>
+            <dl class="key-map">
+              <div><dt>D-pad</dt><dd>Arrow keys</dd></div>
+              <div><dt>A / B</dt><dd>Z / X</dd></div>
+              <div><dt>Start</dt><dd>Enter</dd></div>
+              <div><dt>Select</dt><dd>V</dd></div>
+              <div><dt>SNES X / Y</dt><dd>A / S</dd></div>
+              <div><dt>SNES L / R</dt><dd>Q / E</dd></div>
+            </dl>
+            <p>Open <strong>Controls</strong> in the emulator toolbar to remap the keyboard, assign a gamepad, or configure Player 2.</p>
+            <p id="gamepad-status" class="gamepad-status">Checking Gamepad API…</p>
+          </section>
+
+          <section class="retro-card retro-legal">
+            <p class="kicker">Legal + private</p>
+            <p>Use only ROMs you are legally entitled to run. No games, BIOS files, save files, or copyrighted ROM data are included.</p>
+            <p>ROM bytes stay in this tab. They are not uploaded, persisted, analyzed remotely, or added to image exports.</p>
+            <p>Powered by EmulatorJS and pinned FCEUmm/Snes9x cores. Provided without warranty. <a href="./THIRD_PARTY_LICENSES.md" target="_blank" rel="noreferrer">Licenses and source</a>.</p>
+          </section>
+        </aside>
+
+        <section class="retro-console" aria-label="Retro game player">
+          <div class="retro-console__toolbar">
+            <div><p class="kicker">Native video output</p><h2>Cartridge monitor</h2></div>
+            <span id="retro-status" class="status-pill"><i></i> No ROM loaded</span>
+          </div>
+
+          <div class="retro-stage">
+            <div id="retro-empty" class="retro-empty">
+              <span class="retro-empty__cartridge" aria-hidden="true"><i></i></span>
+              <p class="kicker">Cartridge slot empty</p>
+              <h2>Insert a local signal.</h2>
+              <p>Choose a legally usable NES or SNES ROM.<br />Nothing leaves this browser tab.</p>
+            </div>
+            <div id="retro-frame-host" class="retro-frame-host" hidden></div>
+          </div>
+
+          <div class="retro-console__footer">
+            <p>The EmulatorJS toolbar supplies Start, Pause/Resume, Reset, volume, mute, fullscreen, clean PNG screenshots, in-memory states, and control remapping.</p>
+            <p>Switching tabs or hiding the page pauses active emulation. Returning never resumes audio automatically.</p>
+          </div>
         </section>
       </div>
     </main>

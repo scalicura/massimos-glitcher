@@ -6,6 +6,7 @@ import { cloneSettings, defaultSettings, EFFECT_KEYS, PRESETS, settingsForPreset
 import { normalizeSeed } from './random/seeded-random.js';
 import { initSoundboard } from './audio/soundboard.js';
 import { initYouTubePlayer } from './youtube/youtube-player.js';
+import { initRetroLab } from './retro/retro-lab.js';
 
 const avatarHappy = new URL('../assets/avatar-happy.png', import.meta.url).href;
 const avatarSurprised = new URL('../assets/avatar-surprised.png', import.meta.url).href;
@@ -489,6 +490,7 @@ let dragDepth = 0;
 
 const soundboard = initSoundboard(document.querySelector('#audio-workspace'));
 const youtubePlayer = initYouTubePlayer(document.querySelector('#audio-workspace'));
+const retroLab = initRetroLab(document.querySelector('#retro-workspace'));
 
 function switchWorkspace(targetId) {
   document.querySelectorAll('[data-workspace]').forEach((workspace) => { workspace.hidden = workspace.id !== targetId; });
@@ -502,6 +504,7 @@ function switchWorkspace(targetId) {
     soundboard.stopAll();
     youtubePlayer.pause();
   }
+  if (targetId !== 'retro-workspace') retroLab.pause('workspace-switch');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -513,6 +516,7 @@ window.addEventListener('beforeunload', () => {
   closeImageSource(state.originalImage?.source);
   soundboard.destroy();
   youtubePlayer.pause();
+  retroLab.destroy();
 });
 
 syncControlsFromSettings();
