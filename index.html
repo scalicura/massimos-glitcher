@@ -8,6 +8,8 @@
       content="Massimo's Glitcher — a playful, private, browser-based image glitch editor."
     />
     <meta name="theme-color" content="#080b10" />
+    <link rel="icon" type="image/png" href="./assets/avatar-happy.png" />
+    <link rel="apple-touch-icon" href="./assets/avatar-happy.png" />
     <title>Massimo’s Glitcher</title>
   </head>
   <body>
@@ -307,7 +309,10 @@
           <canvas id="preview-canvas" aria-label="Glitched image preview" hidden></canvas>
           <div id="empty-state" class="empty-state">
             <div class="empty-state__halo"></div>
-            <img id="empty-avatar" alt="Massimo ready to glitch an image" />
+            <figure class="empty-state__art">
+              <img id="empty-avatar" alt="Pixel-art portrait of Massimo ready to glitch an image" />
+              <figcaption><span>Signal pilot</span><strong>Standing by</strong></figcaption>
+            </figure>
             <p class="kicker">No signal detected</p>
             <h1>Feed me some pixels.</h1>
             <p>Drop an image anywhere on this monitor<br />and let the beautiful damage begin.</p>

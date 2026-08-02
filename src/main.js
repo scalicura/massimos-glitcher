@@ -9,6 +9,7 @@ import { initYouTubePlayer } from './youtube/youtube-player.js';
 
 const avatarHappy = new URL('../assets/avatar-happy.png', import.meta.url).href;
 const avatarSurprised = new URL('../assets/avatar-surprised.png', import.meta.url).href;
+const massimoPixelPortrait = new URL('../assets/massimo-pixel-portrait.png', import.meta.url).href;
 const HISTORY_LIMIT = 30;
 const RENDER_DEBOUNCE_MS = 48;
 
@@ -50,8 +51,9 @@ function assignMascot(selector, source) {
   image.src = source;
 }
 
-['#header-avatar', '#empty-avatar', '#soundboard-empty-avatar'].forEach((selector) => assignMascot(selector, avatarHappy));
+['#header-avatar', '#soundboard-empty-avatar'].forEach((selector) => assignMascot(selector, avatarHappy));
 ['#random-avatar', '#datamosh-avatar', '#soundboard-stop-avatar'].forEach((selector) => assignMascot(selector, avatarSurprised));
+assignMascot('#empty-avatar', massimoPixelPortrait);
 
 const state = {
   // The decoded source remains immutable; previews and exports always start here.
