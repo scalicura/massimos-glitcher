@@ -17,14 +17,19 @@
       <a class="brand" href="#" aria-label="Massimo's Glitcher home">
         <img id="header-avatar" class="brand__avatar" alt="Massimo smiling" />
         <span class="brand__copy">
-          <span class="brand__eyebrow">browser image lab // v2.0</span>
+          <span class="brand__eyebrow">browser media lab // v3.0</span>
           <span class="brand__title" data-text="Massimo’s Glitcher">Massimo’s Glitcher</span>
         </span>
       </a>
       <span class="privacy-note"><i></i> Processing stays on your device</span>
     </header>
 
-    <main class="app-shell">
+    <nav class="mode-nav" role="tablist" aria-label="Application workspace">
+      <button class="mode-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="image-workspace" data-workspace-target="image-workspace">Image Editor</button>
+      <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="audio-workspace" data-workspace-target="audio-workspace">Audio Studio</button>
+    </nav>
+
+    <main id="image-workspace" class="app-shell" data-workspace>
       <aside class="control-panel" aria-label="Image controls">
         <section class="panel-section upload-section">
           <div class="section-heading">
@@ -71,9 +76,32 @@
               <button type="button" class="preset-button" data-preset="arcade"><span>8-BIT</span><small>arcade mode</small></button>
               <button type="button" class="preset-button" data-preset="dataRot"><span>ROT</span><small>data decay</small></button>
             </div>
+            <div class="datamosh-preset-heading">
+              <span>Datamosh-inspired stills</span>
+              <img id="datamosh-avatar" alt="Massimo reacts to aggressive datamosh presets" />
+            </div>
+            <div class="preset-grid preset-grid--datamosh">
+              <button type="button" class="preset-button" data-preset="datamoshLite" title="Readable block motion with subtle local color drift"><span>MOSH LITE</span><small>readable motion</small></button>
+              <button type="button" class="preset-button preset-button--aggressive" data-preset="datamoshMeltdown" title="Heavy melt, echoes, and channel drift"><span>MELTDOWN <b>!</b></span><small>heavy codec decay</small></button>
+              <button type="button" class="preset-button" data-preset="brokenCodec" title="Block corruption and signal-band failure"><span>CODEC</span><small>broken stream</small></button>
+              <button type="button" class="preset-button" data-preset="frozenMotion" title="Persistent echoes and frame offsets"><span>FROZEN</span><small>motion trails</small></button>
+              <button type="button" class="preset-button preset-button--aggressive" data-preset="panicBroadcast" title="Severe broadcast-band and color failure"><span>PANIC <b>!</b></span><small>broadcast failure</small></button>
+            </div>
           </fieldset>
 
           <fieldset id="effects-fieldset" class="effects-list" disabled>
+            <div class="seed-panel">
+              <div>
+                <label for="seed-input">Deterministic seed</label>
+                <p>Same image, settings, dimensions, and seed reproduce the same damage.</p>
+              </div>
+              <div class="seed-panel__actions">
+                <input id="seed-input" type="text" inputmode="numeric" value="3817" aria-describedby="seed-message" />
+                <button id="new-seed-button" class="icon-button" type="button" title="Generate a new deterministic seed">New seed</button>
+              </div>
+              <p id="seed-message" class="inline-message" aria-live="polite">Active seed: 3817</p>
+            </div>
+
             <p class="control-group-label">Core transforms</p>
             <div class="effect-control" data-effect="rgbShift">
               <div class="effect-control__top">
@@ -157,6 +185,90 @@
               <input aria-label="Data corruption amount" type="range" min="0" max="100" value="48" data-range="corruption" disabled />
               <div class="accent-line accent-line--magenta"></div>
             </div>
+
+            <p class="control-group-label control-group-label--spaced">Datamosh-inspired still effects</p>
+
+            <details class="datamosh-effect effect-control is-off" data-effect="macroblock">
+              <summary><label class="toggle-label"><input type="checkbox" data-toggle="macroblock" /><span></span> Macroblock displacement</label><small>blocks</small></summary>
+              <p>Moves deterministic codec-like blocks without exposing blank canvas.</p>
+              <div class="parameter-grid">
+                <label>Block width <output data-output-param="blockWidth">48</output><input aria-label="Macroblock width" type="range" min="8" max="160" value="48" data-param="blockWidth" disabled /></label>
+                <label>Block height <output data-output-param="blockHeight">32</output><input aria-label="Macroblock height" type="range" min="4" max="120" value="32" data-param="blockHeight" disabled /></label>
+                <label>Displacement <output data-output-param="displacement">60</output><input aria-label="Macroblock displacement" type="range" min="0" max="240" value="60" data-param="displacement" disabled /></label>
+                <label>Density <output data-output-param="density">28</output><input aria-label="Macroblock density" type="range" min="1" max="100" value="28" data-param="density" disabled /></label>
+                <label>Horizontal bias <output data-output-param="horizontalBias">45</output><input aria-label="Macroblock horizontal bias" type="range" min="-100" max="100" value="45" data-param="horizontalBias" disabled /></label>
+                <label>Vertical bias <output data-output-param="verticalBias">0</output><input aria-label="Macroblock vertical bias" type="range" min="-100" max="100" value="0" data-param="verticalBias" disabled /></label>
+                <label class="parameter-grid__wide">Effect seed (0 = shared)<input aria-label="Macroblock random seed" type="number" min="0" max="4294967295" value="0" data-param="seed" disabled /></label>
+              </div>
+            </details>
+
+            <details class="datamosh-effect effect-control is-off" data-effect="compressionMelt">
+              <summary><label class="toggle-label"><input type="checkbox" data-toggle="compressionMelt" /><span></span> Compression melt</label><small>smear</small></summary>
+              <p>Smears blocks from a clean snapshot so iterations remain controlled.</p>
+              <div class="parameter-grid">
+                <label>Strength <output data-output-param="strength">54</output><input aria-label="Compression melt strength" type="range" min="0" max="100" value="54" data-param="strength" disabled /></label>
+                <label>Spread <output data-output-param="spread">72</output><input aria-label="Compression melt spread" type="range" min="0" max="240" value="72" data-param="spread" disabled /></label>
+                <label>Density <output data-output-param="density">30</output><input aria-label="Compression melt density" type="range" min="1" max="100" value="30" data-param="density" disabled /></label>
+                <label>Iterations <output data-output-param="iterations">3</output><input aria-label="Compression melt iterations" type="range" min="1" max="8" value="3" data-param="iterations" disabled /></label>
+                <label>Direction<select aria-label="Compression melt direction" data-param="direction" disabled><option value="horizontal">Horizontal</option><option value="vertical">Vertical</option><option value="mixed">Mixed</option></select></label>
+                <label>Effect seed (0 = shared)<input aria-label="Compression melt random seed" type="number" min="0" max="4294967295" value="0" data-param="seed" disabled /></label>
+              </div>
+            </details>
+
+            <details class="datamosh-effect effect-control is-off" data-effect="frameTear">
+              <summary><label class="toggle-label"><input type="checkbox" data-toggle="frameTear" /><span></span> Frame tear / offset</label><small>tears</small></summary>
+              <p>Duplicates horizontal or vertical strips with safe bounded offsets.</p>
+              <div class="parameter-grid">
+                <label>Tear count <output data-output-param="count">7</output><input aria-label="Frame tear count" type="range" min="1" max="32" value="7" data-param="count" disabled /></label>
+                <label>Thickness <output data-output-param="thickness">24</output><input aria-label="Frame tear thickness" type="range" min="1" max="120" value="24" data-param="thickness" disabled /></label>
+                <label>Offset <output data-output-param="offset">76</output><input aria-label="Frame tear offset" type="range" min="0" max="240" value="76" data-param="offset" disabled /></label>
+                <label>Opacity <output data-output-param="opacity">72</output><input aria-label="Frame tear opacity" type="range" min="5" max="100" value="72" data-param="opacity" disabled /></label>
+                <label>Blend intensity <output data-output-param="blend">52</output><input aria-label="Frame tear blend intensity" type="range" min="0" max="100" value="52" data-param="blend" disabled /></label>
+                <label>Orientation<select aria-label="Frame tear orientation" data-param="orientation" disabled><option value="horizontal">Horizontal</option><option value="vertical">Vertical</option><option value="mixed">Mixed</option></select></label>
+                <label class="parameter-grid__wide">Effect seed (0 = shared)<input aria-label="Frame tear random seed" type="number" min="0" max="4294967295" value="0" data-param="seed" disabled /></label>
+              </div>
+            </details>
+
+            <details class="datamosh-effect effect-control is-off" data-effect="regionalColorDrift">
+              <summary><label class="toggle-label"><input type="checkbox" data-toggle="regionalColorDrift" /><span></span> Regional color drift</label><small>local RGB</small></summary>
+              <p>Moves color channels only inside deterministic damaged regions.</p>
+              <div class="parameter-grid">
+                <label>Red offset <output data-output-param="redOffset">14</output><input aria-label="Regional red offset" type="range" min="-40" max="40" value="14" data-param="redOffset" disabled /></label>
+                <label>Green offset <output data-output-param="greenOffset">0</output><input aria-label="Regional green offset" type="range" min="-40" max="40" value="0" data-param="greenOffset" disabled /></label>
+                <label>Blue offset <output data-output-param="blueOffset">-14</output><input aria-label="Regional blue offset" type="range" min="-40" max="40" value="-14" data-param="blueOffset" disabled /></label>
+                <label>Region size <output data-output-param="regionSize">92</output><input aria-label="Regional color drift region size" type="range" min="8" max="220" value="92" data-param="regionSize" disabled /></label>
+                <label>Density <output data-output-param="density">26</output><input aria-label="Regional color drift density" type="range" min="1" max="100" value="26" data-param="density" disabled /></label>
+                <label>Direction<select aria-label="Regional color drift direction" data-param="direction" disabled><option value="horizontal">Horizontal</option><option value="vertical">Vertical</option><option value="mixed">Mixed</option></select></label>
+                <label class="parameter-grid__wide">Effect seed (0 = shared)<input aria-label="Regional color drift random seed" type="number" min="0" max="4294967295" value="0" data-param="seed" disabled /></label>
+              </div>
+            </details>
+
+            <details class="datamosh-effect effect-control is-off" data-effect="blockEcho">
+              <summary><label class="toggle-label"><input type="checkbox" data-toggle="blockEcho" /><span></span> Block echo trails</label><small>motion</small></summary>
+              <p>Repeats selected blocks to mimic single-frame motion persistence.</p>
+              <div class="parameter-grid">
+                <label>Echo count <output data-output-param="echoCount">4</output><input aria-label="Block echo count" type="range" min="1" max="10" value="4" data-param="echoCount" disabled /></label>
+                <label>Echo spacing <output data-output-param="spacing">24</output><input aria-label="Block echo spacing" type="range" min="1" max="100" value="24" data-param="spacing" disabled /></label>
+                <label>Block size <output data-output-param="blockSize">72</output><input aria-label="Block echo block size" type="range" min="8" max="200" value="72" data-param="blockSize" disabled /></label>
+                <label>Opacity falloff <output data-output-param="opacityFalloff">58</output><input aria-label="Block echo opacity falloff" type="range" min="5" max="100" value="58" data-param="opacityFalloff" disabled /></label>
+                <label>Region density <output data-output-param="density">24</output><input aria-label="Block echo region density" type="range" min="1" max="100" value="24" data-param="density" disabled /></label>
+                <label>Direction<select aria-label="Block echo direction" data-param="direction" disabled><option value="right">Right</option><option value="left">Left</option><option value="up">Up</option><option value="down">Down</option><option value="mixed">Mixed</option></select></label>
+                <label class="parameter-grid__wide">Effect seed (0 = shared)<input aria-label="Block echo random seed" type="number" min="0" max="4294967295" value="0" data-param="seed" disabled /></label>
+              </div>
+            </details>
+
+            <details class="datamosh-effect effect-control is-off" data-effect="signalBand">
+              <summary><label class="toggle-label"><input type="checkbox" data-toggle="signalBand" /><span></span> Signal band corruption</label><small>broadcast</small></summary>
+              <p>Damages horizontal bands with displacement, noise, and local color failure.</p>
+              <div class="parameter-grid">
+                <label>Band count <output data-output-param="bandCount">8</output><input aria-label="Signal band count" type="range" min="1" max="36" value="8" data-param="bandCount" disabled /></label>
+                <label>Band thickness <output data-output-param="bandThickness">14</output><input aria-label="Signal band thickness" type="range" min="1" max="100" value="14" data-param="bandThickness" disabled /></label>
+                <label>Displacement <output data-output-param="displacement">64</output><input aria-label="Signal band displacement" type="range" min="0" max="240" value="64" data-param="displacement" disabled /></label>
+                <label>Noise <output data-output-param="noise">28</output><input aria-label="Signal band noise" type="range" min="0" max="100" value="28" data-param="noise" disabled /></label>
+                <label>Color drift <output data-output-param="colorDrift">26</output><input aria-label="Signal band color drift" type="range" min="0" max="100" value="26" data-param="colorDrift" disabled /></label>
+                <label>Effect seed (0 = shared)<input aria-label="Signal band random seed" type="number" min="0" max="4294967295" value="0" data-param="seed" disabled /></label>
+              </div>
+            </details>
           </fieldset>
 
           <div class="randomize-row">
@@ -233,6 +345,77 @@
           <p>Preview may be reduced for speed. Export always uses the original dimensions.</p>
         </div>
       </section>
+    </main>
+
+    <main id="audio-workspace" class="audio-studio" data-workspace hidden>
+      <header class="studio-header">
+        <div><p class="kicker">Local playback lab</p><h1>Audio Studio</h1></div>
+        <p>Soundboard files stay in this browser session. YouTube uses the official visible embedded player.</p>
+      </header>
+
+      <div class="audio-studio__grid">
+        <section class="studio-panel soundboard" aria-labelledby="soundboard-title">
+          <div class="studio-panel__heading">
+            <div><p class="kicker">Local sounds</p><h2 id="soundboard-title">Soundboard</h2></div>
+            <div class="stop-all-cluster"><img id="soundboard-stop-avatar" alt="Massimo ready to stop all sounds" /><button id="soundboard-stop-all" class="button button--danger" type="button" disabled>Stop All</button></div>
+          </div>
+
+          <fieldset class="master-controls" aria-label="Soundboard master controls">
+            <label>Master volume <output id="master-volume-output">100</output><input id="master-volume" type="range" min="0" max="100" value="100" /></label>
+            <button id="master-mute" class="button button--ghost" type="button" aria-pressed="false">Mute</button>
+            <button id="soundboard-clear" class="button button--ghost" type="button" disabled>Clear All</button>
+          </fieldset>
+
+          <div id="audio-drop-zone" class="audio-drop-zone" tabindex="0" role="button" aria-controls="audio-file-input">
+            <input id="audio-file-input" type="file" accept="audio/mpeg,audio/wav,audio/ogg,audio/mp4,.mp3,.wav,.ogg,.m4a" multiple hidden />
+            <strong>Drop audio files to build pads</strong>
+            <span>MP3, WAV, OGG, and browser-supported M4A · session only</span>
+            <button id="audio-browse-button" class="button button--small" type="button">Choose sounds</button>
+          </div>
+          <p id="soundboard-status" class="studio-message" aria-live="polite">No sound pads loaded.</p>
+
+          <div id="sound-pad-grid" class="sound-pad-grid" aria-live="polite"></div>
+          <div id="soundboard-empty" class="soundboard-empty">
+            <img id="soundboard-empty-avatar" alt="Massimo waiting for sound files" />
+            <div><strong>Your board is quiet.</strong><p>Add local files to create touch-friendly sound pads.</p></div>
+          </div>
+        </section>
+
+        <section class="studio-panel youtube-panel" aria-labelledby="youtube-title">
+          <div class="studio-panel__heading"><div><p class="kicker">Official embed</p><h2 id="youtube-title">YouTube Player</h2></div><span class="compliance-badge">Iframe API</span></div>
+          <form id="youtube-load-form" class="youtube-load-form">
+            <label for="youtube-input">YouTube URL, video ID, or playlist ID</label>
+            <div><input id="youtube-input" type="text" autocomplete="off" placeholder="https://youtu.be/… or playlist ID" /><button class="button button--primary" type="submit">Load</button></div>
+          </form>
+          <p id="youtube-message" class="studio-message" aria-live="polite">Enter a YouTube URL or ID. Playback never starts automatically.</p>
+
+          <div class="youtube-frame-shell">
+            <div id="youtube-player"><span>Official player will appear here.</span></div>
+          </div>
+
+          <div class="youtube-controls" aria-label="YouTube playback controls">
+            <button type="button" data-youtube-action="previous" disabled title="Previous playlist item">Previous</button>
+            <button type="button" data-youtube-action="play" disabled>Play</button>
+            <button type="button" data-youtube-action="pause" disabled>Pause</button>
+            <button type="button" data-youtube-action="stop" disabled>Stop</button>
+            <button type="button" data-youtube-action="restart" disabled>Restart</button>
+            <button type="button" data-youtube-action="next" disabled title="Next playlist item">Next</button>
+            <button type="button" data-youtube-action="mute" disabled aria-pressed="false">Mute</button>
+          </div>
+          <label class="youtube-volume">YouTube volume <output id="youtube-volume-output">100</output><input id="youtube-volume" type="range" min="0" max="100" value="100" disabled /></label>
+          <dl class="youtube-meta">
+            <div><dt>State</dt><dd id="youtube-state">No content</dd></div>
+            <div><dt>Loaded</dt><dd id="youtube-kind">None</dd></div>
+            <div><dt>Video ID</dt><dd id="youtube-video-id">—</dd></div>
+            <div><dt>Playlist ID</dt><dd id="youtube-playlist-id">—</dd></div>
+          </dl>
+          <div class="youtube-footer-actions">
+            <button id="youtube-open-button" class="button button--ghost" type="button" disabled>Open on YouTube</button>
+            <button id="youtube-clear-button" class="button button--ghost" type="button" disabled>Clear</button>
+          </div>
+          <p class="youtube-compliance">Visible official player only. No extraction, downloads, proxying, background playback, or export integration.</p>
+        </section>
+      </div>
     </main>
 
     <footer class="site-footer">

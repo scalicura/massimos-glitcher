@@ -1,22 +1,11 @@
-/** Create a repeatable pseudo-random stream so a preview does not flicker. */
-function createRandom(seed) {
-  let state = seed >>> 0;
-  return () => {
-    state += 0x6d2b79f5;
-    let value = state;
-    value = Math.imul(value ^ (value >>> 15), value | 1);
-    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
-    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-function makeBuffer(width, height) {
-  if (typeof OffscreenCanvas !== 'undefined') return new OffscreenCanvas(width, height);
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  return canvas;
-}
+import { createSeededRandom as createRandom } from './random/seeded-random.js';
+import { makeBuffer } from './effects/effect-utils.js';
+import { applyMacroblockDisplacement } from './effects/macroblock-displacement.js';
+import { applyCompressionMelt } from './effects/compression-melt.js';
+import { applyFrameTear } from './effects/frame-tear.js';
+import { applyRegionalColorDrift } from './effects/regional-color-drift.js';
+import { applyBlockEcho } from './effects/block-echo.js';
+import { applySignalBandCorruption } from './effects/signal-band-corruption.js';
 
 /** Pixelation is done by shrinking a snapshot, then scaling it back with smoothing off. */
 export function applyPixelation(context, width, height, blockSize) {
@@ -250,9 +239,15 @@ export function applyCorruption(context, width, height, amount, seed) {
 export function applyEffects(context, width, height, settings) {
   if (settings.pixelation.enabled) applyPixelation(context, width, height, settings.pixelation.value);
   if (settings.retroGame?.enabled) applyRetroGame(context, width, height, settings.retroGame.value);
+  if (settings.compressionMelt?.enabled) applyCompressionMelt(context, width, height, settings.compressionMelt, settings.seed);
+  if (settings.macroblock?.enabled) applyMacroblockDisplacement(context, width, height, settings.macroblock, settings.seed);
+  if (settings.frameTear?.enabled) applyFrameTear(context, width, height, settings.frameTear, settings.seed);
+  if (settings.blockEcho?.enabled) applyBlockEcho(context, width, height, settings.blockEcho, settings.seed);
+  if (settings.signalBand?.enabled) applySignalBandCorruption(context, width, height, settings.signalBand, settings.seed);
   if (settings.slices.enabled) applySliceDisplacement(context, width, height, settings.slices.value, settings.seed);
   if (settings.corruption?.enabled) applyCorruption(context, width, height, settings.corruption.value, settings.seed);
   if (settings.vhs?.enabled) applyVhs(context, width, height, settings.vhs.value, settings.seed);
+  if (settings.regionalColorDrift?.enabled) applyRegionalColorDrift(context, width, height, settings.regionalColorDrift, settings.seed);
   if (settings.rgbShift.enabled) applyRgbShift(context, width, height, settings.rgbShift.value);
   if (settings.crt?.enabled) applyCrt(context, width, height, settings.crt.value);
   if (settings.scanlines.enabled) applyScanlines(context, width, height, settings.scanlines.value);
