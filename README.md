@@ -1,6 +1,51 @@
 # Massimo's Glitcher
 
-Massimo's Glitcher is a private, browser-based media playground built with Vite, vanilla JavaScript, CSS, HTML5 Canvas, WebAssembly-powered emulation, and native browser media APIs. Images, soundboard files, and user-supplied ROMs stay on the device. There is no backend, account, paid API, or React dependency.
+Massimo's Glitcher is a private, browser-based media playground built with Vite, vanilla JavaScript, CSS, HTML5 Canvas, IndexedDB, WebAssembly-powered emulation, and native browser media APIs. Images, animation projects, soundboard files, and user-supplied ROMs stay on the device. There is no backend, account, paid API, or React dependency.
+
+## Phase 5: Glitch Studio
+
+**Glitch Studio** adds two isolated creation modes without turning the app into a general video editor:
+
+- **Animated Glitch** creates deterministic 2, 3, 5, 8, or 10-second loops at 12, 15, 24, or 30 FPS.
+- **Broadcast Maker** combines the same motion pipeline with safe, editable fictional broadcast overlays.
+
+Upload a local JPG, PNG, or WebP, choose a preset or Guided Mode theme, add a few timeline events, and select **Preview**. **Stop Preview** cancels the single active animation loop. Leaving Glitch Studio or hiding the page pauses preview and stops generated cues. Preview frames always redraw the preserved source image before applying time-dependent damage; frames are never progressively corrupted.
+
+### Animated effects and presets
+
+The ten animated effects are **RGB Flicker**, **Signal Tear**, **Macroblock Corruption**, **VHS Tracking**, **Freeze Pulse**, **Static Burst**, **Color Dropout**, **Frame Flash**, **Zoom Jolt**, and **Scanline Drift**. **Effects Off**, **Reset**, and **Randomize** are available in Advanced Mode.
+
+The original presets are:
+
+- Mild: **Security Feed**, **Dream Transmission**, and **Quiet Before the Scare**
+- Strange: **Broken Cartoon**, **Haunted VHS**, and **Lost Broadcast**
+- Severe: **Abandoned Arcade**, **Corrupted Mascot**, **Damaged Cartridge**, and **Signal Collapse**
+
+Each preset carries an intensity category, description, seed behavior, and recommended duration/frame rate. The same source image, dimensions, duration, frame rate, settings, timeline, and seed reproduce the same visual frame sequence within the same browser rendering pipeline.
+
+### Guided Mode and timeline
+
+Guided Mode follows six short steps: upload an image, choose a theme, choose Mild/Strange/Destroyed intensity, optionally enter warning text, preview, and export. Its eight themes map to coherent preset families rather than unrelated random values. Opening Advanced Mode preserves the generated settings.
+
+The compact timeline has a scrubber, time ruler, playhead, and a limit of 24 event markers. Supported visual markers are **Glitch Burst**, **Freeze**, **Blackout**, **Flash**, and **Text Warning**; local **Audio Cue** markers are also shown. Markers can be dragged, selected, duplicated, deleted, and moved with Arrow keys. Shift + Arrow moves one second. All positions are clamped to the project duration.
+
+### Broadcast Maker
+
+Broadcast Maker includes ten fictional templates: **Signal Lost**, **Emergency Alert**, **Intercepted Transmission**, **Corrupted Children’s Program**, **Security Camera Feed**, **Abandoned Arcade Recording**, **Test Pattern**, **Classified Training Tape**, **Station Interruption**, and **Unknown Entity Detected**.
+
+Headline, subtitle, ticker, timestamp, channel, camera ID, station, alignment, size, theme, opacity, and safe-area guides are editable. Text treatments include Flicker, Character Scramble, Horizontal Tear, Missing Letters, Duplicate Shadow, Terminal Typing, Warning Pulse, Scanline Reveal, Redaction Bars, and Intermittent Dropout. User text is length-limited, stripped of control/angle characters, stored as plain data, and drawn with Canvas `fillText`; it is never inserted as HTML. Reduced-flash protection is on by default, lowers flash opacity, warns when disabled with intense settings, and complements `prefers-reduced-motion` safeguards.
+
+### Audio cues and animation export
+
+Preview-only audio cues include an original warning beep, low alarm, static burst, signal chirp, impact hit, rising tone, and descending power-down tone. They are synthesized locally through Web Audio, capped at 65% cue volume, and routed through a dynamics compressor. Existing local Soundboard pads appear only while present and require explicit selection. Audio never autoplays before Preview, and YouTube audio is never routed, extracted, recorded, or exported.
+
+Primary animation export is silent **WebM** through `canvas.captureStream()` and `MediaRecorder`. A **current-frame PNG** is also available. Output can use original resolution or be bounded to 1080p or 720p while preserving aspect ratio; the UI estimates dimensions and working memory. Exports remain local, show progress, reject duplicate export attempts, sanitize filenames, stop media tracks, and revoke temporary object URLs. GIF, PNG-frame ZIP, MP4, and synchronized audio muxing are intentionally deferred.
+
+### Local projects and privacy
+
+Animated Glitch and Broadcast projects can be created, saved, saved as, loaded, renamed, duplicated, and deleted with confirmation. Optional autosave runs only after a project has an ID. IndexedDB records use a versioned schema and may include the local source-image Blob and a thumbnail. Project JSON uses `.massimo-glitch.json` or `.massimo-broadcast.json`; imports are capped at 1 MB, reject remote URLs and incompatible/malformed schemas, and never contain executable code or embedded media.
+
+All processing and storage remain in the browser. Clearing site data can permanently remove IndexedDB projects. Export Project JSON before clearing browser data if a project configuration matters.
 
 ## Checkpoints 4A and 4B: Retro Lab
 
@@ -99,7 +144,8 @@ Each datamosh effect also has an optional local seed. A local value of `0` follo
 
 - Node.js 20.19+ or 22.12+
 - pnpm 11 (recommended and declared in `package.json`)
-- A current Chromium, Firefox, or Safari browser with Canvas, Blob URL, and HTML media support
+- A current Chromium, Firefox, or Safari browser with Canvas, Blob URL, IndexedDB, Web Audio, and HTML media support
+- `MediaRecorder` plus Canvas `captureStream()` for WebM animation export
 
 ## Install and run
 
@@ -144,6 +190,12 @@ src/audio/sound-pad.js          Semantic per-pad UI
 src/audio/soundboard.js         Playback, shortcuts, master controls, cleanup
 src/effects/                    Phase 3 datamosh-inspired effect modules
 src/random/seeded-random.js     Shared deterministic pseudo-random generator
+src/studio/model.js             Phase 5 schemas, validation, presets, templates, and pure logic
+src/studio/renderer.js          Source-first deterministic animation and broadcast renderer
+src/studio/glitch-studio.js     Studio UI, preview lifecycle, timeline, projects, and exports
+src/studio/storage.js           Versioned IndexedDB project persistence
+src/studio/audio-cues.js        Limited local generated/Soundboard preview cues
+src/studio/exporter.js          Silent WebM and current-frame PNG export
 src/retro/player.js             Isolated EmulatorJS iframe configuration and session states
 src/retro/retro-lab.js          ROM/effect UI, restart/fallback lifecycle, pause, and cleanup
 src/retro/rom-validation.js     NES/SNES signature, extension, size, and override validation
@@ -166,6 +218,7 @@ vite.config.js                  Multi-page build and explicit pinned emulator as
 THIRD_PARTY_LICENSES.md         Emulator/core versions, licenses, and source notices
 tests/rom-validation.test.js    Node-based ROM validation regression tests
 tests/shader-presets.test.js    Shader catalog, asset, and architecture regression tests
+tests/studio-logic.test.js      Phase 5 schema, preset, seed, timeline, and filename tests
 ```
 
 ## Known limitations
@@ -185,3 +238,11 @@ tests/shader-presets.test.js    Shader catalog, asset, and architecture regressi
 - Snes9x is licensed for personal/non-commercial use; commercial distribution requires permission from its copyright holders.
 - Retro Lab supports only NES and SNES. It includes no BIOS or game content.
 - Effected screenshots, recording, codec-level corruption, audio corruption, per-game effect automation, and additional console systems are not included.
+- Glitch Studio WebM encoding is browser-native, real-time, silent, and codec-dependent. Chromium-family browsers generally provide the broadest `captureStream()`/MediaRecorder support; Safari and Firefox support varies by version and platform.
+- GIF, PNG-frame ZIP, MP4, synchronized audio export, arbitrary video input, multitrack editing, and true codec-level datamoshing are not included. Generated and Soundboard cues are preview-only.
+- Original-resolution animation export can be memory intensive and is limited by the browser's maximum Canvas size, encoder, device memory, and sustained real-time rendering capacity. Use 720p on mobile or constrained devices.
+- Project JSON stores configuration but intentionally does not embed source images or audio. IndexedDB saves may store the source-image Blob subject to browser quota and eviction policies.
+
+## Future roadmap
+
+A focused follow-up can improve export reliability with a worker-driven frame encoder, optional lightweight GIF support after performance evaluation, project schema migrations, and broader Firefox/Safari/mobile device testing. A full video editor, DAW, cloud account system, and copyrighted mascot libraries remain outside the product direction.

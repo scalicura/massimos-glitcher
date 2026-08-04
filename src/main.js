@@ -7,6 +7,7 @@ import { normalizeSeed } from './random/seeded-random.js';
 import { initSoundboard } from './audio/soundboard.js';
 import { initYouTubePlayer } from './youtube/youtube-player.js';
 import { initRetroLab } from './retro/retro-lab.js';
+import { initGlitchStudio } from './studio/glitch-studio.js';
 
 const avatarHappy = new URL('../assets/avatar-happy.png', import.meta.url).href;
 const avatarSurprised = new URL('../assets/avatar-surprised.png', import.meta.url).href;
@@ -491,6 +492,9 @@ let dragDepth = 0;
 const soundboard = initSoundboard(document.querySelector('#audio-workspace'));
 const youtubePlayer = initYouTubePlayer(document.querySelector('#audio-workspace'));
 const retroLab = initRetroLab(document.querySelector('#retro-workspace'));
+const glitchStudio = initGlitchStudio(document.querySelector('#glitch-workspace'), {
+  getSoundboardPads: () => soundboard.getState().pads.values(),
+});
 
 function switchWorkspace(targetId) {
   document.querySelectorAll('[data-workspace]').forEach((workspace) => { workspace.hidden = workspace.id !== targetId; });
@@ -505,6 +509,8 @@ function switchWorkspace(targetId) {
     youtubePlayer.pause();
   }
   if (targetId !== 'retro-workspace') retroLab.pause('workspace-switch');
+  if (targetId !== 'glitch-workspace') glitchStudio.pause('workspace-switch');
+  else glitchStudio.onShow();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -517,6 +523,7 @@ window.addEventListener('beforeunload', () => {
   soundboard.destroy();
   youtubePlayer.pause();
   retroLab.destroy();
+  glitchStudio.destroy();
 });
 
 syncControlsFromSettings();
