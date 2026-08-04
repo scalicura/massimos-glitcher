@@ -331,7 +331,11 @@ export function initGlitchStudio(root, { getSoundboardPads = () => [] } = {}) {
     if (!state.projects.length) { elements['project-list'].append(createElement('p', 'microcopy', 'No local projects saved.')); return; }
     state.projects.forEach((project) => {
       const button = createElement('button'); button.type = 'button'; button.classList.toggle('is-selected', project.id === state.selectedProjectId);
-      if (project.thumbnail) { const image = document.createElement('img'); const url = URL.createObjectURL(project.thumbnail); image.src = url; image.alt = ''; image.addEventListener('load', () => URL.revokeObjectURL(url), { once: true }); button.append(image); }
+      if (project.thumbnail) {
+        const image = document.createElement('img'); const url = URL.createObjectURL(project.thumbnail); let released = false;
+        const releaseUrl = () => { if (!released) { released = true; URL.revokeObjectURL(url); } };
+        image.src = url; image.alt = ''; image.addEventListener('load', releaseUrl, { once: true }); image.addEventListener('error', releaseUrl, { once: true }); button.append(image);
+      }
       const copy = createElement('span', '', `${project.name} · ${project.type === 'broadcast' ? 'Broadcast' : 'Animation'}`); button.append(copy);
       button.addEventListener('click', () => { state.selectedProjectId = project.id; renderProjectList(); });
       button.addEventListener('dblclick', () => loadSelectedProject()); elements['project-list'].append(button);
