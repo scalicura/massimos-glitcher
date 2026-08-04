@@ -1,6 +1,6 @@
 {
   "name": "massimos-glitcher",
-  "version": "4.2.0",
+  "version": "5.0.0",
   "private": true,
   "packageManager": "pnpm@11.9.0",
   "type": "module",
