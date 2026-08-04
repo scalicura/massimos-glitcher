@@ -19,7 +19,7 @@
       <a class="brand" href="#" aria-label="Massimo's Glitcher home">
         <img id="header-avatar" class="brand__avatar" alt="Massimo smiling" />
         <span class="brand__copy">
-          <span class="brand__eyebrow">browser media lab // v4.0</span>
+          <span class="brand__eyebrow">browser media lab // v4.2</span>
           <span class="brand__title" data-text="Massimo’s Glitcher">Massimo’s Glitcher</span>
         </span>
       </a>
@@ -89,10 +89,6 @@
               <button type="button" class="preset-button" data-preset="brokenCodec" title="Block corruption and signal-band failure"><span>CODEC</span><small>broken stream</small></button>
               <button type="button" class="preset-button" data-preset="frozenMotion" title="Persistent echoes and frame offsets"><span>FROZEN</span><small>motion trails</small></button>
               <button type="button" class="preset-button preset-button--aggressive" data-preset="panicBroadcast" title="Severe broadcast-band and color failure"><span>PANIC <b>!</b></span><small>broadcast failure</small></button>
-            </div>
-            <div class="interface-art-note interface-art-note--presets" aria-hidden="true">
-              <img class="interface-art" src="./src/assets/interface-art/pixel-boy-glasses-wave.png" alt="" loading="lazy" decoding="async" draggable="false" />
-              <span><small>Preset scout</small><strong>Choose your damage</strong></span>
             </div>
           </fieldset>
 
@@ -322,7 +318,13 @@
             <p class="kicker">No signal detected</p>
             <h1>Feed me some pixels.</h1>
             <p>Drop an image anywhere on this monitor<br />and let the beautiful damage begin.</p>
-            <button id="empty-upload-button" class="button button--primary" type="button">Select an image</button>
+            <div class="empty-state__actions">
+              <div class="interface-art-note empty-state__tip" role="note">
+                <img class="interface-art" src="./src/assets/interface-art/pixel-boy-glasses-wave.png" alt="" loading="lazy" decoding="async" draggable="false" />
+                <span><small>Quick-start signal</small><strong>Try a preset, then tune the damage.</strong></span>
+              </div>
+              <button id="empty-upload-button" class="button button--primary" type="button">Select an image</button>
+            </div>
           </div>
           <div id="stage-drop-overlay" class="stage-drop-overlay" aria-hidden="true">
             <strong>Release to load signal</strong>
@@ -387,8 +389,11 @@
 
           <div id="sound-pad-grid" class="sound-pad-grid" aria-live="polite"></div>
           <div id="soundboard-empty" class="soundboard-empty">
-            <img class="interface-art soundboard-empty__scene" src="./src/assets/interface-art/pixel-boy-swing.png" alt="" loading="lazy" decoding="async" draggable="false" />
-            <div><strong>Your board is quiet.</strong><p>Add local files to create touch-friendly sound pads.</p></div>
+            <div class="soundboard-empty__art" aria-hidden="true">
+              <img class="interface-art soundboard-empty__scene" src="./src/assets/interface-art/pixel-boy-swing.png" alt="" loading="lazy" decoding="async" draggable="false" />
+              <img class="interface-art soundboard-empty__support" src="./src/assets/interface-art/pixel-boy-camo-hoodie.png" alt="" loading="lazy" decoding="async" draggable="false" />
+            </div>
+            <div class="soundboard-empty__copy"><strong>Your board is quiet.</strong><p>Add local files to create touch-friendly sound pads.</p></div>
           </div>
         </section>
 
