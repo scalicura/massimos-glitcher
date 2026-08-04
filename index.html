@@ -30,6 +30,7 @@
       <button class="mode-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="image-workspace" data-workspace-target="image-workspace">Image Editor</button>
       <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="audio-workspace" data-workspace-target="audio-workspace">Audio Studio</button>
       <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="retro-workspace" data-workspace-target="retro-workspace">Retro Lab <span>4B</span></button>
+      <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="glitch-workspace" data-workspace-target="glitch-workspace">Glitch Studio <span>5</span></button>
     </nav>
 
     <main id="image-workspace" class="app-shell" data-workspace>
@@ -574,6 +575,168 @@
             <button id="shader-restart-confirm" class="button button--primary" type="submit" value="restart">Restart with Shader</button>
           </div>
         </form>
+      </dialog>
+    </main>
+
+    <main id="glitch-workspace" class="glitch-studio" data-workspace hidden>
+      <header class="glitch-header">
+        <div><p class="kicker">Deterministic motion lab</p><h1>Glitch Studio</h1></div>
+        <p>Build short corrupted loops and fictional broadcasts. Images, projects, and exports stay local.</p>
+      </header>
+
+      <div class="glitch-mode-tabs" role="tablist" aria-label="Glitch Studio mode">
+        <button class="is-active" type="button" role="tab" aria-selected="true" data-studio-mode="animated">Animated Glitch</button>
+        <button type="button" role="tab" aria-selected="false" data-studio-mode="broadcast">Broadcast Maker</button>
+      </div>
+
+      <div class="glitch-layout">
+        <aside class="glitch-controls" aria-label="Glitch Studio controls">
+          <section class="glitch-card project-card" aria-labelledby="studio-project-title">
+            <div class="glitch-card__heading">
+              <div><p class="kicker">Local archive</p><h2 id="studio-project-title">Projects</h2></div>
+              <img class="interface-art glitch-card__mascot" src="./src/assets/interface-art/pixel-boy-camo-hoodie.png" alt="" loading="lazy" decoding="async" draggable="false" />
+            </div>
+            <div class="project-name-row"><input id="studio-project-name" type="text" maxlength="80" value="Untitled transmission" aria-label="Project name" /><span id="studio-unsaved" class="unsaved-indicator">Unsaved</span></div>
+            <div class="compact-actions project-actions">
+              <button id="studio-new-project" type="button">New</button><button id="studio-save-project" type="button">Save</button><button id="studio-save-as" type="button">Save As</button><button id="studio-load-projects" type="button">Load</button>
+            </div>
+            <label class="inline-check"><input id="studio-autosave" type="checkbox" /> Autosave after changes</label>
+            <div id="studio-project-browser" class="project-browser" hidden>
+              <div id="studio-project-list" class="project-list"></div>
+              <div class="compact-actions"><button id="studio-rename-project" type="button">Rename</button><button id="studio-duplicate-project" type="button">Duplicate</button><button id="studio-delete-project" type="button">Delete</button></div>
+            </div>
+            <div class="compact-actions"><button id="studio-export-project" type="button">Export Project JSON</button><button id="studio-import-project" type="button">Import Project JSON</button></div>
+            <input id="studio-project-file" type="file" accept=".massimo-glitch.json,.massimo-broadcast.json,application/json" hidden />
+            <p class="microcopy">Saved in IndexedDB on this device. Clearing site data removes local projects.</p>
+          </section>
+
+          <section class="glitch-card guided-card" aria-labelledby="guided-title">
+            <div class="glitch-card__heading">
+              <div><p class="kicker">Six-step start</p><h2 id="guided-title">Guided Mode</h2></div>
+              <img class="interface-art glitch-card__mascot glitch-card__mascot--wide" src="./src/assets/interface-art/pixel-boy-glasses-wave.png" alt="" loading="lazy" decoding="async" draggable="false" />
+            </div>
+            <div id="guided-controls" class="studio-form-grid">
+              <label>1 · Image <button id="studio-guided-upload" class="field-button" type="button">Choose image</button></label>
+              <label>2 · Theme<select id="studio-guided-theme"><option value="brokenCartoon">Broken Cartoon</option><option value="abandonedArcade">Abandoned Arcade</option><option value="hauntedTape">Haunted Tape</option><option value="securityCamera">Security Camera</option><option value="corruptedMascot">Corrupted Mascot</option><option value="lostTransmission">Lost Transmission</option><option value="damagedGame">Damaged Game</option><option value="strangeDream">Strange Dream</option></select></label>
+              <label>3 · Intensity<select id="studio-guided-intensity"><option>Mild</option><option selected>Strange</option><option>Destroyed</option></select></label>
+              <label class="studio-form-grid__wide">4 · Warning text<input id="studio-guided-warning" type="text" maxlength="80" placeholder="Optional warning" /></label>
+              <button id="studio-guided-apply" class="button button--primary studio-form-grid__wide" type="button">Build guided signal</button>
+            </div>
+            <button id="studio-advanced-toggle" class="button button--ghost" type="button" aria-expanded="false">Open Advanced Mode</button>
+          </section>
+
+          <section class="glitch-card source-card" aria-labelledby="studio-source-title">
+            <div class="glitch-card__heading"><div><p class="kicker">Immutable source</p><h2 id="studio-source-title">Source Image</h2></div></div>
+            <div id="studio-drop-zone" class="studio-drop-zone" role="button" tabindex="0" aria-controls="studio-image-input">
+              <input id="studio-image-input" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" hidden />
+              <strong>Drop JPG, PNG, or WebP</strong><span>Local only · 25 MB maximum</span><button id="studio-browse" type="button">Choose image</button>
+            </div>
+            <p id="studio-source-meta" class="studio-message" aria-live="polite">No source image loaded.</p>
+          </section>
+
+          <section id="studio-advanced" class="glitch-card advanced-card" aria-labelledby="studio-effects-title" hidden>
+            <div class="glitch-card__heading">
+              <div><p class="kicker">Motion damage</p><h2 id="studio-effects-title">Effects + Presets</h2></div>
+              <img class="interface-art glitch-card__mascot glitch-card__mascot--wide" src="./src/assets/interface-art/pixel-boy-saddle.png" alt="" loading="lazy" decoding="async" draggable="false" />
+            </div>
+            <div id="studio-preset-list" class="studio-preset-list" aria-label="Animation presets"></div>
+            <div class="compact-actions"><button id="studio-effects-off" type="button">Effects Off</button><button id="studio-reset" type="button">Reset</button><button id="studio-randomize" type="button">Randomize</button></div>
+            <div id="studio-effect-controls" class="studio-effect-controls"></div>
+          </section>
+
+          <section id="broadcast-controls" class="glitch-card broadcast-card" aria-labelledby="broadcast-title" hidden>
+            <div class="glitch-card__heading">
+              <div><p class="kicker">Fictional station deck</p><h2 id="broadcast-title">Broadcast Template</h2></div>
+              <img class="interface-art glitch-card__mascot glitch-card__mascot--wide" src="./src/assets/interface-art/pixel-boy-butterfly.png" alt="" loading="lazy" decoding="async" draggable="false" />
+            </div>
+            <label>Template<select id="broadcast-template"></select></label>
+            <div class="studio-form-grid broadcast-fields">
+              <label class="studio-form-grid__wide">Headline<input data-broadcast-field="headline" type="text" maxlength="100" /></label>
+              <label class="studio-form-grid__wide">Subtitle<input data-broadcast-field="subtitle" type="text" maxlength="100" /></label>
+              <label class="studio-form-grid__wide">Warning ticker<input data-broadcast-field="ticker" type="text" maxlength="180" /></label>
+              <label>Timestamp<input data-broadcast-field="timestamp" type="text" maxlength="24" /></label>
+              <label>Channel<input data-broadcast-field="channel" type="text" maxlength="16" /></label>
+              <label>Camera ID<input data-broadcast-field="camera" type="text" maxlength="24" /></label>
+              <label>Station<input data-broadcast-field="station" type="text" maxlength="100" /></label>
+              <label>Alignment<select data-broadcast-field="alignment"><option>left</option><option selected>center</option><option>right</option></select></label>
+              <label>Text effect<select data-broadcast-field="textEffect"></select></label>
+              <label>Color theme<select data-broadcast-field="theme"><option>cyan</option><option>red</option><option>lime</option><option>magenta</option><option>mono</option><option>amber</option></select></label>
+              <label>Text size <output data-output-for="textSize">100</output><input data-broadcast-field="textSize" type="range" min="60" max="140" value="100" /></label>
+              <label>Text flicker <output data-output-for="textFlicker">28</output><input data-broadcast-field="textFlicker" type="range" min="0" max="100" value="28" /></label>
+              <label>Text corruption <output data-output-for="textCorruption">24</output><input data-broadcast-field="textCorruption" type="range" min="0" max="100" value="24" /></label>
+              <label>Overlay opacity <output data-output-for="overlayOpacity">78</output><input data-broadcast-field="overlayOpacity" type="range" min="10" max="100" value="78" /></label>
+            </div>
+            <label class="inline-check"><input data-broadcast-field="safeArea" type="checkbox" checked /> Safe-area guides</label>
+          </section>
+
+          <section class="glitch-card timing-card" aria-labelledby="studio-timing-title">
+            <div class="glitch-card__heading"><div><p class="kicker">Playback rules</p><h2 id="studio-timing-title">Timing + Safety</h2></div></div>
+            <div class="studio-form-grid">
+              <label>Duration<select id="studio-duration"><option value="2">2 seconds</option><option value="3" selected>3 seconds</option><option value="5">5 seconds</option><option value="8">8 seconds</option><option value="10">10 seconds</option></select></label>
+              <label>Frame rate<select id="studio-fps"><option value="12">12 FPS</option><option value="15" selected>15 FPS</option><option value="24">24 FPS</option><option value="30">30 FPS</option></select></label>
+              <label class="studio-form-grid__wide">Deterministic seed<input id="studio-seed" type="number" min="0" max="4294967295" value="3817" /></label>
+            </div>
+            <label class="inline-check"><input id="studio-loop" type="checkbox" checked /> Loop preview</label>
+            <label class="inline-check"><input id="studio-reduced-flash" type="checkbox" checked /> Reduced-flash protection</label>
+            <p id="studio-flash-warning" class="flash-warning" role="status" hidden>High-intensity flashing is active. Reduced-flash protection is recommended.</p>
+          </section>
+
+          <section class="glitch-card audio-cue-card" aria-labelledby="cue-title">
+            <div class="glitch-card__heading"><div><p class="kicker">Optional local sound</p><h2 id="cue-title">Audio Cues</h2></div></div>
+            <label>Cue source<select id="studio-cue"><option value="">No cue</option></select></label>
+            <label>Cue volume <output id="studio-cue-volume-output">35</output><input id="studio-cue-volume" type="range" min="0" max="65" value="35" /></label>
+            <label class="inline-check"><input id="studio-cue-muted" type="checkbox" /> Mute preview cues</label>
+            <button id="studio-add-cue" type="button">Add cue at playhead</button>
+            <p class="microcopy">Generated tones are original and locally synthesized. YouTube audio is never routed or exported. WebM export is silent.</p>
+          </section>
+
+          <section class="glitch-card export-card" aria-labelledby="studio-export-title">
+            <div class="glitch-card__heading"><div><p class="kicker">Local render</p><h2 id="studio-export-title">Export</h2></div></div>
+            <label>Resolution<select id="studio-export-resolution"><option value="original">Original resolution</option><option value="1080">1080p bounded</option><option value="720" selected>720p bounded</option></select></label>
+            <p id="studio-export-dimensions" class="studio-message">Load an image to estimate output size.</p>
+            <div class="compact-actions"><button id="studio-export-webm" class="button button--primary" type="button" disabled>Export WebM</button><button id="studio-export-frame" type="button" disabled>Current frame PNG</button></div>
+            <progress id="studio-export-progress" max="100" value="0" hidden></progress>
+            <p id="studio-export-status" class="studio-message" aria-live="polite">WebM is primary. GIF and frame ZIP are deferred.</p>
+          </section>
+        </aside>
+
+        <section class="glitch-monitor" aria-label="Animation preview and timeline">
+          <div class="glitch-monitor__toolbar">
+            <div><p class="kicker">Live deterministic output</p><h2 id="studio-monitor-title">Animated Glitch Monitor</h2></div>
+            <span id="studio-status" class="status-pill" data-mode="idle"><i></i> Awaiting image</span>
+          </div>
+          <div id="studio-stage" class="glitch-stage">
+            <canvas id="studio-canvas" aria-label="Glitch Studio animation preview" hidden></canvas>
+            <div id="studio-empty" class="glitch-empty">
+              <strong>No local signal loaded.</strong><p>Choose a still image to create a short deterministic loop.</p>
+            </div>
+          </div>
+          <div class="studio-transport">
+            <img class="interface-art studio-transport__art" src="./src/assets/interface-art/pixel-boy-swing.png" alt="" loading="lazy" decoding="async" draggable="false" />
+            <button id="studio-preview" class="button button--primary" type="button" disabled>Preview</button>
+            <button id="studio-stop" type="button" disabled>Stop Preview</button>
+            <output id="studio-time-output">00:00.000 / 00:03.000</output>
+          </div>
+
+          <section class="studio-timeline" aria-labelledby="timeline-title">
+            <div class="timeline-heading"><div><p class="kicker">Compact event rail</p><h2 id="timeline-title">Timeline</h2></div><span id="timeline-count">0 / 24 markers</span></div>
+            <input id="studio-scrubber" type="range" min="0" max="3" step="0.001" value="0" aria-label="Animation playhead" />
+            <div id="timeline-track" class="timeline-track" aria-label="Animation event markers">
+              <div id="timeline-playhead" class="timeline-playhead" aria-hidden="true"></div>
+              <div id="timeline-markers"></div>
+            </div>
+            <div id="timeline-ruler" class="timeline-ruler" aria-hidden="true"></div>
+            <div class="timeline-actions">
+              <select id="timeline-event-type" aria-label="Timeline marker type"><option value="glitch">Glitch Burst</option><option value="freeze">Freeze</option><option value="blackout">Blackout</option><option value="flash">Flash</option><option value="text">Text Warning</option></select>
+              <button id="timeline-add" type="button">Add marker</button><button id="timeline-duplicate" type="button" disabled>Duplicate</button><button id="timeline-delete" type="button" disabled>Delete</button>
+            </div>
+            <p class="microcopy">Arrow keys move the selected marker. Shift + Arrow moves one second.</p>
+          </section>
+        </section>
+      </div>
+
+      <dialog id="studio-delete-dialog" class="retro-restart-dialog" aria-labelledby="studio-delete-title">
+        <form method="dialog"><p class="kicker">Local project</p><h2 id="studio-delete-title">Delete this project?</h2><p>This removes the project and its stored source image from this browser.</p><div class="retro-restart-actions"><button value="cancel">Cancel</button><button id="studio-delete-confirm" class="button button--danger" value="confirm">Delete project</button></div></form>
       </dialog>
     </main>
 
