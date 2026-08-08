@@ -7,7 +7,7 @@
       name="description"
       content="Massimo's Glitcher — a playful, private, browser-based image glitch editor."
     />
-    <meta name="theme-color" content="#080b10" />
+    <meta name="theme-color" content="#0a1028" />
     <link rel="icon" type="image/png" href="./assets/avatar-happy.png" />
     <link rel="apple-touch-icon" href="./assets/avatar-happy.png" />
     <title>Massimo’s Glitcher</title>
@@ -23,6 +23,10 @@
           <span class="brand__title" data-text="Massimo’s Glitcher">Massimo’s Glitcher</span>
         </span>
       </a>
+      <div class="header-buddy" aria-hidden="true">
+        <span class="pixel-sprite pixel-sprite--idle"></span>
+        <span class="header-buddy__bubble"><strong>Ready, player?</strong><small>Pick a lab and make something wonderfully weird.</small></span>
+      </div>
       <span class="privacy-note"><i></i> Processing stays on your device</span>
     </header>
 
@@ -290,6 +294,7 @@
             <p class="kicker">Live output</p>
             <div class="preview-title-row">
               <h2>Preview monitor</h2>
+              <img class="title-reaction" src="./assets/reaction_surprised.png" alt="" loading="lazy" decoding="async" draggable="false" aria-hidden="true" />
               <span id="render-status" class="status-pill"><i></i> Awaiting image</span>
             </div>
           </div>
@@ -314,6 +319,7 @@
             <figure class="empty-state__art">
               <img class="interface-art interface-art--image-hero" src="./src/assets/interface-art/pixel-boy-butterfly.png" alt="" decoding="async" draggable="false" />
               <img id="empty-avatar" class="empty-state__pilot" alt="Pixel-art portrait of Massimo ready to glitch an image" />
+              <span class="pixel-sprite pixel-sprite--jump empty-state__sprite" aria-hidden="true"></span>
               <figcaption><span>Signal pilot</span><strong>Standing by</strong></figcaption>
             </figure>
             <p class="kicker">No signal detected</p>
@@ -364,6 +370,7 @@
     <main id="audio-workspace" class="audio-studio" data-workspace hidden>
       <header class="studio-header">
         <div><p class="kicker">Local playback lab</p><h1>Audio Studio</h1></div>
+        <img class="workspace-reaction" src="./assets/reaction_happy.png" alt="" loading="lazy" decoding="async" draggable="false" aria-hidden="true" />
         <p>Soundboard files stay in this browser session. YouTube uses the official visible embedded player.</p>
       </header>
 
@@ -438,6 +445,7 @@
     <main id="retro-workspace" class="retro-lab" data-workspace hidden>
       <header class="retro-header">
         <div><p class="kicker">Local cartridge bay</p><h1>Retro Lab</h1></div>
+        <img class="workspace-reaction" src="./assets/reaction_determined.png" alt="" loading="lazy" decoding="async" draggable="false" aria-hidden="true" />
         <div class="retro-version"><span>EmulatorJS</span><strong>4.2.3 stable</strong></div>
       </header>
 
@@ -581,6 +589,7 @@
     <main id="glitch-workspace" class="glitch-studio" data-workspace hidden>
       <header class="glitch-header">
         <div><p class="kicker">Deterministic motion lab</p><h1>Glitch Studio</h1></div>
+        <img class="workspace-reaction" src="./assets/reaction_crouch.png" alt="" loading="lazy" decoding="async" draggable="false" aria-hidden="true" />
         <p>Build short corrupted loops and fictional broadcasts. Images, projects, and exports stay local.</p>
       </header>
 
@@ -708,6 +717,7 @@
           <div id="studio-stage" class="glitch-stage">
             <canvas id="studio-canvas" aria-label="Glitch Studio animation preview" hidden></canvas>
             <div id="studio-empty" class="glitch-empty">
+              <span class="pixel-sprite pixel-sprite--glitch glitch-empty__sprite" aria-hidden="true"></span>
               <strong>No local signal loaded.</strong><p>Choose a still image to create a short deterministic loop.</p>
             </div>
           </div>
@@ -742,6 +752,7 @@
 
     <footer class="site-footer">
       <span>Massimo’s Glitcher</span>
+      <span class="footer-runway" aria-hidden="true"><i class="pixel-sprite pixel-sprite--run"></i></span>
       <span>Made for beautiful accidents.</span>
     </footer>
 
