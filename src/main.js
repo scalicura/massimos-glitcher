@@ -495,6 +495,18 @@ const retroLab = initRetroLab(document.querySelector('#retro-workspace'));
 const glitchStudio = initGlitchStudio(document.querySelector('#glitch-workspace'), {
   getSoundboardPads: () => soundboard.getState().pads.values(),
 });
+const mascotAdventure = document.querySelector('#mascot-adventure');
+let mascotAdventureTimer = null;
+
+function playMascotAdventure() {
+  if (!mascotAdventure || document.hidden || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  window.clearTimeout(mascotAdventureTimer);
+  mascotAdventure.classList.remove('is-playing');
+  // Restart the coordinated CSS sequence when a player changes workspaces.
+  void mascotAdventure.offsetWidth;
+  mascotAdventure.classList.add('is-playing');
+  mascotAdventureTimer = window.setTimeout(() => mascotAdventure.classList.remove('is-playing'), 9200);
+}
 
 function switchWorkspace(targetId) {
   document.querySelectorAll('[data-workspace]').forEach((workspace) => { workspace.hidden = workspace.id !== targetId; });
@@ -515,10 +527,14 @@ function switchWorkspace(targetId) {
 }
 
 document.querySelectorAll('[data-workspace-target]').forEach((button) => {
-  button.addEventListener('click', () => switchWorkspace(button.dataset.workspaceTarget));
+  button.addEventListener('click', () => {
+    switchWorkspace(button.dataset.workspaceTarget);
+    playMascotAdventure();
+  });
 });
 
 window.addEventListener('beforeunload', () => {
+  window.clearTimeout(mascotAdventureTimer);
   closeImageSource(state.originalImage?.source);
   soundboard.destroy();
   youtubePlayer.pause();
@@ -529,3 +545,4 @@ window.addEventListener('beforeunload', () => {
 syncControlsFromSettings();
 updateExportControls();
 enableEditorControls(false);
+window.setTimeout(playMascotAdventure, 700);
