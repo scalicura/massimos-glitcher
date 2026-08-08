@@ -32,26 +32,37 @@ export async function exportWebM({ renderer, source, sourceWidth, sourceHeight, 
   const stream = canvas.captureStream(settings.fps);
   const recorder = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: Math.min(12_000_000, Math.max(2_500_000, canvas.width * canvas.height * settings.fps * 0.18)) });
   const chunks = [];
+  let recordingError = null;
   recorder.addEventListener('dataavailable', (event) => { if (event.data.size) chunks.push(event.data); });
-  const finished = new Promise((resolve, reject) => {
+  const finished = new Promise((resolve) => {
     recorder.addEventListener('stop', resolve, { once: true });
-    recorder.addEventListener('error', () => reject(new Error('The browser WebM recorder failed.')), { once: true });
+    recorder.addEventListener('error', () => { recordingError = new Error('The browser WebM recorder failed.'); resolve(); }, { once: true });
   });
-  recorder.start(250);
-  const totalFrames = settings.duration * settings.fps;
-  const start = performance.now();
-  for (let frame = 0; frame < totalFrames; frame += 1) {
-    const target = start + frame * (1000 / settings.fps);
-    const delay = Math.max(0, target - performance.now());
-    if (delay) await new Promise((resolve) => window.setTimeout(resolve, delay));
-    renderer.render({ canvas, source, sourceWidth, sourceHeight, settings, time: frame / settings.fps, mode, resolution });
-    onProgress?.((frame + 1) / totalFrames);
+  try {
+    recorder.start(250);
+    const totalFrames = settings.duration * settings.fps;
+    const start = performance.now();
+    for (let frame = 0; frame < totalFrames; frame += 1) {
+      if (recordingError) throw recordingError;
+      const target = start + frame * (1000 / settings.fps);
+      const delay = Math.max(0, target - performance.now());
+      if (delay) await new Promise((resolve) => window.setTimeout(resolve, delay));
+      renderer.render({ canvas, source, sourceWidth, sourceHeight, settings, time: frame / settings.fps, mode, resolution });
+      onProgress?.((frame + 1) / totalFrames);
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, Math.ceil(1000 / settings.fps)));
+    if (recordingError) throw recordingError;
+    recorder.stop();
+    await finished;
+    if (recordingError) throw recordingError;
+    const blob = new Blob(chunks, { type: mime });
+    if (!blob.size) throw new Error('The browser produced an empty WebM recording.');
+    const filename = `${sanitizeFilename(name)}.webm`; download(blob, filename);
+    return { filename, size: blob.size, width: canvas.width, height: canvas.height, mime };
+  } finally {
+    if (recorder.state !== 'inactive') {
+      try { recorder.stop(); } catch { /* Recorder is already stopping or unavailable. */ }
+    }
+    stream.getTracks().forEach((track) => { try { track.stop(); } catch { /* Track is already stopped. */ } });
   }
-  await new Promise((resolve) => window.setTimeout(resolve, Math.ceil(1000 / settings.fps)));
-  recorder.stop(); await finished; stream.getTracks().forEach((track) => track.stop());
-  const blob = new Blob(chunks, { type: mime });
-  if (!blob.size) throw new Error('The browser produced an empty WebM recording.');
-  const filename = `${sanitizeFilename(name)}.webm`; download(blob, filename);
-  return { filename, size: blob.size, width: canvas.width, height: canvas.height, mime };
 }
-

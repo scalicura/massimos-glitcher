@@ -4,6 +4,15 @@ export function createCueEngine(getSoundboardPads = () => []) {
   let audioContext = null;
   let limiter = null;
   const active = new Set();
+  const pendingTimers = new Set();
+
+  function schedule(callback, delay) {
+    const timer = window.setTimeout(() => {
+      pendingTimers.delete(timer);
+      callback();
+    }, delay);
+    pendingTimers.add(timer);
+  }
 
   function ensureContext() {
     if (!audioContext) {
@@ -49,7 +58,7 @@ export function createCueEngine(getSoundboardPads = () => []) {
       pad.audio.volume = Math.min(0.65, pad.volume * safeVolume); pad.audio.currentTime = 0; pad.audio.play().catch(() => {}); return;
     }
     if (!CUE_TYPES.includes(cue)) return;
-    if (cue === 'warning-beep') { tone(760, 0.12, safeVolume * 0.55); window.setTimeout(() => tone(760, 0.12, safeVolume * 0.55), 170); }
+    if (cue === 'warning-beep') { tone(760, 0.12, safeVolume * 0.55); schedule(() => tone(760, 0.12, safeVolume * 0.55), 170); }
     if (cue === 'low-alarm') tone(92, 0.7, safeVolume * 0.55, 72, 'sawtooth');
     if (cue === 'static-burst') noise(0.22, safeVolume * 0.36);
     if (cue === 'signal-chirp') tone(520, 0.18, safeVolume * 0.45, 1280, 'sine');
@@ -59,10 +68,11 @@ export function createCueEngine(getSoundboardPads = () => []) {
   }
 
   function stopAll() {
+    pendingTimers.forEach((timer) => window.clearTimeout(timer));
+    pendingTimers.clear();
     active.forEach((node) => { try { node.stop(); } catch { /* Already stopped. */ } });
     active.clear();
   }
 
   return { playCue, stopAll, destroy() { stopAll(); audioContext?.close(); audioContext = null; limiter = null; } };
 }
-
