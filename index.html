@@ -23,33 +23,28 @@
           <span class="brand__title" data-text="Massimo’s Glitcher">Massimo’s Glitcher</span>
         </span>
       </a>
-      <div class="header-buddy" aria-hidden="true">
-        <span class="pixel-sprite pixel-sprite--idle"></span>
-        <span class="header-buddy__bubble"><strong>Ready, player?</strong><small>Pick a lab and make something wonderfully weird.</small></span>
-      </div>
       <span class="privacy-note"><i></i> Processing stays on your device</span>
     </header>
 
     <nav class="mode-nav" role="tablist" aria-label="Application workspace">
-      <button class="mode-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="image-workspace" data-workspace-target="image-workspace">Image Editor</button>
+      <button class="mode-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="image-workspace" data-workspace-target="image-workspace">Image Editor <span>Pibby Lab</span></button>
       <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="audio-workspace" data-workspace-target="audio-workspace">Audio Studio</button>
-      <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="retro-workspace" data-workspace-target="retro-workspace">Retro Lab <span>4B</span></button>
-      <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="glitch-workspace" data-workspace-target="glitch-workspace">Glitch Studio <span>5</span></button>
+      <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="retro-workspace" data-workspace-target="retro-workspace">Retro Lab</button>
+      <button class="mode-tab" type="button" role="tab" aria-selected="false" aria-controls="glitch-workspace" data-workspace-target="glitch-workspace">Glitch Studio</button>
     </nav>
 
-    <div id="mascot-adventure" class="mascot-adventure" aria-hidden="true">
-      <span class="mascot-adventure__trail"></span>
-      <span class="mascot-adventure__sprite"></span>
-    </div>
-
     <main id="image-workspace" class="app-shell" data-workspace>
+      <header class="editor-intro">
+        <div><p class="kicker">A little creative mischief</p><h1>Good pixels. Beautiful chaos.</h1><p>Turn a favorite picture into something wonderfully weird.</p></div>
+        <ol class="editor-flow" aria-label="How to create"><li><span>01</span> Add an image</li><li><span>02</span> Pick a look</li><li><span>03</span> Make it yours</li></ol>
+      </header>
       <aside class="control-panel" aria-label="Image controls">
         <section class="panel-section upload-section">
           <div class="section-heading">
             <span class="step-number">01</span>
             <div>
-              <p class="kicker">Source signal</p>
-              <h2>Load an image</h2>
+              <p class="kicker">Start here</p>
+              <h2>Your image</h2>
             </div>
           </div>
 
@@ -70,39 +65,40 @@
             <button id="browse-button" class="button button--small" type="button">Choose file</button>
           </div>
           <p id="upload-error" class="error-message" role="alert" hidden></p>
+          <button id="pibby-demo" class="demo-link" type="button">Just exploring? Try with Massimo ↗</button>
         </section>
 
-        <section class="panel-section pibby-section" aria-labelledby="pibby-title">
-          <div class="section-heading"><span class="step-number">P</span><div><p class="kicker">Tutorial-inspired recipes</p><h2 id="pibby-title">Pibby Lab</h2></div></div>
-          <p class="pibby-intro">Pick a look. Spread the glitch. Make it yours.</p>
+        <div class="editor-looks-heading"><p class="kicker">02 · Pick a look</p><div class="editor-panel-switch" role="group" aria-label="Effect collection"><button type="button" data-editor-panel="pibby" aria-pressed="true" aria-controls="pibby-panel">Pibby Lab</button><button type="button" data-editor-panel="classic" aria-pressed="false" aria-controls="classic-panel">Classic effects</button></div></div>
+
+        <section id="pibby-panel" class="panel-section pibby-section" aria-label="Pibby Lab">
           <label class="pibby-search-label" for="pibby-search">Find an effect</label>
           <input id="pibby-search" class="pibby-search" type="search" placeholder="Try darkness, RGB, melt…" />
           <div id="pibby-recipes" class="pibby-recipes" aria-label="Pibby recipes"></div>
           <p id="pibby-search-status" class="microcopy" role="status"></p>
           <p id="pibby-description" class="pibby-description"></p>
-          <button id="pibby-demo" class="button button--small" type="button">Try with Massimo</button>
           <fieldset id="pibby-fieldset" class="preset-fieldset" disabled>
-            <legend>Corruption controls</legend>
+            <legend>03 · Make it yours</legend>
             <div class="effect-control" data-effect="pibby">
               <div class="effect-control__top"><label class="toggle-label"><input type="checkbox" data-toggle="pibby" /><span></span> Pibby corruption</label></div>
               <label class="pibby-slider">Spread <output data-output-param="coverage">45</output><input aria-label="Corruption spread" type="range" min="0" max="100" value="45" data-param="coverage" /></label>
               <label class="pibby-slider">Pixel size <output data-output-param="blockSize">14</output><input aria-label="Corruption pixel size" type="range" min="4" max="40" value="14" data-param="blockSize" /></label>
               <label class="pibby-slider">Rainbow <output data-output-param="color">38</output><input aria-label="Corruption rainbow amount" type="range" min="0" max="100" value="38" data-param="color" /></label>
-              <label class="pibby-select">Spread from<select data-param="direction"><option value="bottom">Bottom</option><option value="top">Top</option><option value="left">Left</option><option value="right">Right</option><option value="scattered">Scattered patches</option></select></label>
-              <label class="pibby-select">Texture<select data-param="style"><option value="darkness">Darkness</option><option value="static">Static pixels</option><option value="melt">Stretched pixels</option></select></label>
+              <details class="editor-advanced"><summary>Advanced texture settings</summary>
+                <label class="pibby-select">Spread from<select aria-label="Spread from" data-param="direction"><option value="bottom">Bottom</option><option value="top">Top</option><option value="left">Left</option><option value="right">Right</option><option value="scattered">Scattered patches</option></select></label>
+                <label class="pibby-select">Texture<select aria-label="Texture" data-param="style"><option value="darkness">Darkness</option><option value="static">Static pixels</option><option value="melt">Stretched pixels</option></select></label>
+              </details>
             </div>
-            <button id="pibby-generate" class="button button--primary" type="button">Generate new pattern</button>
           </fieldset>
           <p id="pibby-status" class="microcopy" role="status">Upload an image or try Massimo to start.</p>
           <details class="pibby-notes"><summary>How these looks are made</summary><p>Fan-inspired interpretations: a black shape, colorful pixel clusters, channel offsets, and stretched blocks. Every pattern is generated here on your device.</p><a href="https://www.reddit.com/r/Pibby/comments/1ef20kj/" target="_blank" rel="noopener noreferrer">Darkness drawing walkthrough ↗</a><a href="https://www.reddit.com/r/Pibby/comments/r9s900/" target="_blank" rel="noopener noreferrer">Pixel texture &amp; RGB walkthrough ↗</a></details>
         </section>
 
-        <section class="panel-section effects-section">
+        <section id="classic-panel" class="panel-section effects-section" aria-label="Classic effects" hidden>
           <div class="section-heading">
             <span class="step-number">02</span>
             <div>
-              <p class="kicker">Signal damage</p>
-              <h2>Dial the distortion</h2>
+              <p class="kicker">Old-school favorites</p>
+              <h2>Classic effects</h2>
             </div>
           </div>
 
@@ -127,6 +123,7 @@
             </div>
           </fieldset>
 
+          <details class="editor-advanced classic-advanced"><summary>Advanced effect controls</summary>
           <fieldset id="effects-fieldset" class="effects-list" disabled>
             <div class="seed-panel">
               <div>
@@ -315,16 +312,16 @@
               <span aria-hidden="true">↝</span> Randomize
             </button>
           </div>
+          </details>
         </section>
       </aside>
 
       <section class="preview-panel" aria-label="Image preview">
         <div class="preview-toolbar">
           <div>
-            <p class="kicker">Live output</p>
+            <p class="kicker">Your canvas</p>
             <div class="preview-title-row">
-              <h2>Preview monitor</h2>
-              <img class="title-reaction" src="./assets/reaction_surprised.png" alt="" loading="lazy" decoding="async" draggable="false" aria-hidden="true" />
+              <h2 id="active-look-name">Ready when you are</h2>
               <span id="render-status" class="status-pill"><i></i> Awaiting image</span>
             </div>
           </div>
@@ -333,6 +330,7 @@
               <button id="compare-button" class="icon-button" type="button" disabled aria-label="Toggle original image comparison" aria-pressed="false">◐ <span>Compare</span></button>
               <button id="undo-button" class="icon-button" type="button" disabled aria-label="Undo last effect change">↶ <span>Undo</span></button>
               <button id="redo-button" class="icon-button" type="button" disabled aria-label="Redo effect change">↷ <span>Redo</span></button>
+              <button id="reset-button" class="icon-button" type="button" disabled aria-label="Reset all effects">↺ <span>Reset</span></button>
             </div>
             <p id="image-meta" class="image-meta">No source loaded</p>
           </div>
@@ -345,22 +343,14 @@
           <div class="corner corner--br"></div>
           <canvas id="preview-canvas" aria-label="Glitched image preview" hidden></canvas>
           <div id="empty-state" class="empty-state">
-            <div class="empty-state__halo"></div>
             <figure class="empty-state__art">
               <img class="interface-art interface-art--image-hero" src="./src/assets/interface-art/pixel-boy-butterfly.png" alt="" decoding="async" draggable="false" />
-              <img id="empty-avatar" class="empty-state__pilot" alt="Pixel-art portrait of Massimo ready to glitch an image" />
-              <span class="pixel-sprite pixel-sprite--jump empty-state__sprite" aria-hidden="true"></span>
-              <figcaption><span>Signal pilot</span><strong>Standing by</strong></figcaption>
             </figure>
-            <p class="kicker">No signal detected</p>
-            <h1>Feed me some pixels.</h1>
-            <p>Drop an image anywhere on this monitor<br />and let the beautiful damage begin.</p>
+            <p class="kicker">Every picture is a possibility</p>
+            <h2>A little glitch goes a long way.</h2>
+            <p>Drop a picture here or choose one to get started.</p>
             <div class="empty-state__actions">
-              <div class="interface-art-note empty-state__tip" role="note">
-                <img class="interface-art" src="./src/assets/interface-art/pixel-boy-glasses-wave.png" alt="" loading="lazy" decoding="async" draggable="false" />
-                <span><small>Quick-start signal</small><strong>Try a preset, then tune the damage.</strong></span>
-              </div>
-              <button id="empty-upload-button" class="button button--primary" type="button">Select an image</button>
+              <button id="empty-upload-button" class="button" type="button">Choose an image</button>
             </div>
           </div>
           <div id="stage-drop-overlay" class="stage-drop-overlay" aria-hidden="true">
@@ -383,17 +373,15 @@
                 <output id="export-quality-output">92</output>
               </label>
             </fieldset>
-            <div class="preview-actions">
-            <button id="reset-button" class="button button--ghost" type="button" disabled>
-              <span aria-hidden="true">↺</span> Reset
-            </button>
-            <button id="export-button" class="button button--primary" type="button" disabled>
+          </div>
+          <div class="preview-actions">
+            <button id="pibby-generate" class="button button--primary" type="button" disabled>Generate <span aria-hidden="true">↗</span></button>
+            <button id="export-button" class="button button--export" type="button" disabled>
               Export PNG <span aria-hidden="true">↓</span>
             </button>
-            </div>
           </div>
-          <p>Preview may be reduced for speed. Export always uses the original dimensions.</p>
         </div>
+        <div class="canvas-caption"><span id="canvas-hint">Choose a look, adjust it, then generate a new variation.</span><span>Full-size export · Always local</span></div>
       </section>
     </main>
 
@@ -782,7 +770,7 @@
 
     <footer class="site-footer" aria-label="Site credits and release information">
       <div class="dad-credit"><span class="dad-credit__mark" aria-hidden="true">&lt;/&gt;</span><span><strong>Made by Dad<span class="dad-credit__dot">.</span></strong><small>Built for Max. Chaos included.</small></span></div>
-      <span class="footer-runway" aria-hidden="true"><i class="pixel-sprite pixel-sprite--run"></i></span>
+      <span id="mascot-feedback" class="mascot-feedback" role="status" aria-live="polite"></span>
       <div class="release-stamp">
         <div class="release-stamp__identity"><span class="release-stamp__version">v%APP_VERSION%</span><span class="release-stamp__label">%APP_BUILD_LABEL%</span><a class="release-stamp__commit" href="%APP_COMMIT_URL%" target="_blank" rel="noopener noreferrer" aria-label="View source commit %APP_COMMIT%">#%APP_COMMIT% ↗</a></div>
         <span class="release-stamp__date">%APP_DATE_LABEL% <time datetime="%APP_RELEASE_DATE%" title="%APP_DATE_DESCRIPTION%">%APP_RELEASE_DATE_DISPLAY%</time></span>

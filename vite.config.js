@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { defineConfig } from 'vite';
 import { createReleaseInfo, releaseInfoPlugin } from './build/release-info.js';
+import appPackage from './package.json' with { type: 'json' };
 
 const require = createRequire(import.meta.url);
 
@@ -67,7 +68,7 @@ function emulatorAssetsPlugin() {
 export default defineConfig(async ({ command }) => ({
   plugins: [
     emulatorAssetsPlugin(),
-    releaseInfoPlugin(createReleaseInfo(JSON.parse(await readFile('package.json', 'utf8')).version, { development: command === 'serve' })),
+    releaseInfoPlugin(createReleaseInfo(appPackage.version, { development: command === 'serve' })),
   ],
   build: {
     rollupOptions: {

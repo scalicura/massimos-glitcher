@@ -1,4 +1,5 @@
 import './styles.css';
+import './studio-shell.css';
 import { closeImageSource, formatFileSize, loadImageFile } from './image-io.js';
 import { renderImage, renderSourceImage } from './renderer.js';
 import { exportImage } from './export.js';
@@ -57,9 +58,9 @@ function assignMascot(selector, source) {
 
 assignMascot('#header-avatar', avatarHappy);
 ['#random-avatar', '#datamosh-avatar', '#soundboard-stop-avatar'].forEach((selector) => assignMascot(selector, avatarSurprised));
-assignMascot('#empty-avatar', massimoPixelPortrait);
 
 const state = {
+  editorPanel: 'pibby',
   // The decoded source remains immutable; previews and exports always start here.
   originalImage: null,
   renderFrame: null,
@@ -164,6 +165,9 @@ function syncControlsFromSettings() {
     control.classList.toggle('is-off', !setting.enabled);
   });
   syncSeedControl();
+  document.querySelector('#active-look-name').textContent = !state.originalImage ? 'Ready when you are'
+    : state.settings.pibby.enabled ? 'Pibby corruption'
+      : EFFECT_KEYS.some((key) => state.settings[key].enabled) ? 'Your custom look' : 'Original image';
 }
 
 function performRender({ synchronous = false } = {}) {
@@ -197,6 +201,7 @@ function scheduleRender({ immediate = false } = {}) {
 }
 
 function enableEditorControls(enabled) {
+  document.querySelector('#pibby-generate').disabled = !enabled;
   document.querySelector('#pibby-fieldset').disabled = !enabled;
   elements.effectsFieldset.disabled = !enabled;
   elements.presetFieldset.disabled = !enabled;
@@ -222,6 +227,12 @@ async function handleFile(file) {
     const nextImage = await loadImageFile(file);
     closeImageSource(state.originalImage?.source);
     state.originalImage = nextImage;
+    document.querySelector('.upload-section').classList.add('has-image');
+    elements.browseButton.textContent = 'Replace image';
+    if (state.editorPanel === 'pibby' && !EFFECT_KEYS.some((key) => state.settings[key].enabled)) {
+      state.settings = settingsForPibbyRecipe(selectedPibbyRecipe, state.settings.seed);
+    }
+    syncControlsFromSettings();
     resetComparison();
     elements.imageMeta.textContent = `${nextImage.width} × ${nextImage.height} · ${formatFileSize(nextImage.size)}`;
     enableEditorControls(true);
@@ -286,6 +297,7 @@ function randomizeEffects() {
   const randomized = defaultSettings(createSeed());
   document.querySelectorAll('[data-effect]').forEach((control) => {
     const key = control.dataset.effect;
+    if (key === 'pibby') return;
     const parameters = [...control.querySelectorAll('[data-param]')];
     randomized[key].enabled = true;
     if (parameters.length) parameters.forEach((input) => { randomized[key][input.dataset.param] = randomizedInputValue(input); });
@@ -308,6 +320,7 @@ function applyPreset(name, button) {
   recordHistory(previous);
   scheduleRender();
   setStatus(`${PRESETS[name].label} loaded`, 'ready');
+  document.querySelector('#active-look-name').textContent = PRESETS[name].label;
 }
 
 function undo() {
@@ -341,6 +354,8 @@ function updateExportControls() {
 async function handleExport() {
   if (!state.originalImage || state.isExporting) return;
   state.isExporting = true;
+  document.querySelector('#pibby-generate').disabled = true;
+  document.querySelector('#pibby-demo').disabled = true;
   elements.exportButton.disabled = true;
   elements.exportFieldset.disabled = true;
   elements.compareButton.disabled = true;
@@ -359,12 +374,15 @@ async function handleExport() {
     elements.exportButton.dataset.exportWidth = String(state.originalImage.width);
     elements.exportButton.dataset.exportHeight = String(state.originalImage.height);
     setStatus(`${formatLabel} exported · ${formatFileSize(result.size)}`, 'ready');
+    showMascotFeedback('Saved. Nice one, Max!');
   } catch (error) {
     showError(error instanceof Error ? error.message : 'Export failed.');
     setStatus('Export error', 'error');
     console.error(error);
   } finally {
     state.isExporting = false;
+    document.querySelector('#pibby-generate').disabled = false;
+    document.querySelector('#pibby-demo').disabled = false;
     elements.exportButton.disabled = false;
     elements.exportFieldset.disabled = false;
     elements.compareButton.disabled = false;
@@ -419,6 +437,7 @@ function generatePibbyPattern(newSeed = true) {
   recordHistory(previous);
   scheduleRender({ immediate: true });
   document.querySelector('#pibby-status').textContent = `Pattern generated · seed ${state.settings.seed}. Compare, undo, or export below.`;
+  showMascotFeedback('A fresh little glitch.');
 }
 
 function selectPibbyRecipe(recipe) {
@@ -436,7 +455,20 @@ function selectPibbyRecipe(recipe) {
   recordHistory(previous);
   scheduleRender({ immediate: true });
   document.querySelector('#pibby-status').textContent = `${recipe.label} applied. Adjust the sliders or generate a new pattern.`;
+  document.querySelector('#active-look-name').textContent = recipe.label;
 }
+
+document.querySelectorAll('[data-editor-panel]').forEach((button) => {
+  button.addEventListener('click', () => {
+    state.editorPanel = button.dataset.editorPanel;
+    document.querySelector('#pibby-panel').hidden = state.editorPanel !== 'pibby';
+    document.querySelector('#classic-panel').hidden = state.editorPanel !== 'classic';
+    document.querySelector('#pibby-generate').hidden = state.editorPanel !== 'pibby';
+    document.querySelector('#canvas-hint').textContent = state.editorPanel === 'pibby'
+      ? 'Choose a look, adjust it, then generate a new variation.' : 'Presets apply instantly. Open Advanced to fine-tune your look.';
+    document.querySelectorAll('[data-editor-panel]').forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+  });
+});
 
 function renderPibbyRecipes() {
   const recipes = searchPibbyRecipes(document.querySelector('#pibby-search').value);
@@ -467,7 +499,7 @@ function renderPibbyRecipes() {
     button.addEventListener('click', () => selectPibbyRecipe(recipe));
     host.append(button);
   }
-  document.querySelector('#pibby-search-status').textContent = recipes.length ? `${recipes.length} recipes · select a look to apply` : 'No matching looks. Try pixel, rainbow, RGB, or darkness.';
+  document.querySelector('#pibby-search-status').textContent = recipes.length ? `${recipes.length} looks · click to try` : 'No matching looks. Try pixel, rainbow, RGB, or darkness.';
 }
 
 document.querySelector('#pibby-description').textContent = PIBBY_RECIPES[0].description;
@@ -584,17 +616,16 @@ const retroLab = initRetroLab(document.querySelector('#retro-workspace'));
 const glitchStudio = initGlitchStudio(document.querySelector('#glitch-workspace'), {
   getSoundboardPads: () => soundboard.getState().pads.values(),
 });
-const mascotAdventure = document.querySelector('#mascot-adventure');
-let mascotAdventureTimer = null;
-
-function playMascotAdventure() {
-  if (!mascotAdventure || document.hidden || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  window.clearTimeout(mascotAdventureTimer);
-  mascotAdventure.classList.remove('is-playing');
-  // Restart the coordinated CSS sequence when a player changes workspaces.
-  void mascotAdventure.offsetWidth;
-  mascotAdventure.classList.add('is-playing');
-  mascotAdventureTimer = window.setTimeout(() => mascotAdventure.classList.remove('is-playing'), 9200);
+let mascotFeedbackTimer = null;
+function showMascotFeedback(message) {
+  const feedback = document.querySelector('#mascot-feedback');
+  window.clearTimeout(mascotFeedbackTimer);
+  feedback.textContent = message;
+  feedback.classList.add('is-visible');
+  mascotFeedbackTimer = window.setTimeout(() => {
+    feedback.classList.remove('is-visible');
+    feedback.textContent = '';
+  }, 3200);
 }
 
 function switchWorkspace(targetId) {
@@ -618,12 +649,11 @@ function switchWorkspace(targetId) {
 document.querySelectorAll('[data-workspace-target]').forEach((button) => {
   button.addEventListener('click', () => {
     switchWorkspace(button.dataset.workspaceTarget);
-    playMascotAdventure();
   });
 });
 
 window.addEventListener('beforeunload', () => {
-  window.clearTimeout(mascotAdventureTimer);
+  window.clearTimeout(mascotFeedbackTimer);
   closeImageSource(state.originalImage?.source);
   soundboard.destroy();
   youtubePlayer.pause();
@@ -634,4 +664,3 @@ window.addEventListener('beforeunload', () => {
 syncControlsFromSettings();
 updateExportControls();
 enableEditorControls(false);
-window.setTimeout(playMascotAdventure, 700);
