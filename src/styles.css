@@ -635,7 +635,7 @@ input[type='range']:focus-visible { outline: 1px solid var(--cyan); outline-offs
 
 @media (min-width: 901px) {
   #image-workspace {
-    height: calc(100dvh - 174px);
+    height: calc(100dvh - 208px);
     min-height: 560px;
     align-items: stretch;
   }
@@ -729,7 +729,7 @@ input[type='range']:focus-visible { outline: 1px solid var(--cyan); outline-offs
   .control-panel { display: block; }
   .upload-section { border-right: 0; border-bottom: 1px solid var(--line); }
   .panel-section { padding: 24px 18px; }
-  .site-footer { display: none; }
+  .site-footer { display: flex; }
   .mode-nav { padding-inline: 10px; }
   .mode-tab { flex: 1; padding-inline: 8px; }
   .parameter-grid { grid-template-columns: 1fr; }
@@ -1124,8 +1124,25 @@ button { font-weight: 700; }
   border-left: 2px dotted rgba(255, 216, 92, .35);
 }
 
-.site-footer { color: #8190b2; }
-.site-footer > span:last-child { color: var(--yellow); }
+.site-footer { min-height: 76px; padding-block: 14px; gap: 20px; color: var(--muted); background: linear-gradient(100deg, rgba(169, 140, 255, .08), transparent 60%), #090f25; text-transform: none; line-height: 1.5; }
+.dad-credit { display: flex; align-items: center; gap: 12px; }
+.dad-credit__mark { display: grid; place-items: center; width: 40px; height: 36px; border: 1px solid var(--cyan); border-radius: 7px; color: var(--cyan); font: 700 15px/1 var(--mono); box-shadow: 3px 3px 0 rgba(255, 103, 179, .4); transform: rotate(-5deg); }
+.dad-credit strong { display: block; color: var(--text); font: 700 17px/1.2 var(--display); letter-spacing: -.04em; }
+.dad-credit__dot { color: var(--magenta); }
+.dad-credit small { display: block; margin-top: 5px; font-size: 9px; letter-spacing: .025em; }
+.release-stamp { display: grid; justify-items: end; gap: 6px; }
+.release-stamp__identity { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
+.release-stamp__version { padding: 3px 7px; border: 1px solid rgba(202, 255, 106, .45); border-radius: 4px; color: var(--lime); background: rgba(202, 255, 106, .06); font-size: 10px; }
+.release-stamp__label { font-size: 8px; text-transform: uppercase; letter-spacing: .1em; }
+.release-stamp__commit { color: var(--cyan); text-decoration: none; }
+.release-stamp__commit:hover { text-decoration: underline; }
+.release-stamp__commit:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
+.release-stamp__date { font-size: 9px; letter-spacing: .02em; }
+@media (max-width: 900px) { .site-footer .footer-runway { display: none; } }
+@media (max-width: 620px) {
+  .site-footer { align-items: flex-start; flex-direction: column; gap: 18px; padding: 20px; }
+  .release-stamp { justify-items: start; }
+}
 
 .glitch-card__heading h2,
 .timeline-heading h2,

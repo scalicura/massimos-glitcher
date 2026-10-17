@@ -19,7 +19,7 @@
       <a class="brand" href="#" aria-label="Massimo's Glitcher home">
         <img id="header-avatar" class="brand__avatar" alt="Massimo smiling" />
         <span class="brand__copy">
-          <span class="brand__eyebrow">browser media lab // v5.0</span>
+          <span class="brand__eyebrow">browser media lab // v%APP_VERSION%</span>
           <span class="brand__title" data-text="Massimo’s Glitcher">Massimo’s Glitcher</span>
         </span>
       </a>
@@ -780,10 +780,13 @@
       </dialog>
     </main>
 
-    <footer class="site-footer">
-      <span>Massimo’s Glitcher</span>
+    <footer class="site-footer" aria-label="Site credits and release information">
+      <div class="dad-credit"><span class="dad-credit__mark" aria-hidden="true">&lt;/&gt;</span><span><strong>Made by Dad<span class="dad-credit__dot">.</span></strong><small>Built for Max. Chaos included.</small></span></div>
       <span class="footer-runway" aria-hidden="true"><i class="pixel-sprite pixel-sprite--run"></i></span>
-      <span>Made for beautiful accidents.</span>
+      <div class="release-stamp">
+        <div class="release-stamp__identity"><span class="release-stamp__version">v%APP_VERSION%</span><span class="release-stamp__label">%APP_BUILD_LABEL%</span><a class="release-stamp__commit" href="%APP_COMMIT_URL%" target="_blank" rel="noopener noreferrer" aria-label="View source commit %APP_COMMIT%">#%APP_COMMIT% ↗</a></div>
+        <span class="release-stamp__date">%APP_DATE_LABEL% <time datetime="%APP_RELEASE_DATE%" title="%APP_DATE_DESCRIPTION%">%APP_RELEASE_DATE_DISPLAY%</time></span>
+      </div>
     </footer>
 
     <script type="module" src="/src/main.js"></script>

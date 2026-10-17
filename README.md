@@ -146,6 +146,12 @@ Every randomized still-image effect uses the lightweight seeded generator in `sr
 
 Each datamosh effect also has an optional local seed. A local value of `0` follows the shared seed; a positive local value pins that effect independently. Given the same source image, canvas dimensions, settings, effect order, and seed, the rendered result is reproducible. Randomize creates a new shared seed, and Phase 3 presets carry stored seeds.
 
+## Release stamp and versioning
+
+The **Made by Dad** footer shows the release version, linked source commit, and commit date in Pacific time on desktop and mobile. The header uses the same version from `package.json`. Vite generates the stamp at build time using Netlify's `COMMIT_REF` or local Git metadata, and emits `/release.json` with the exact source identity and build time. If the commit date is unavailable, the footer honestly labels the fallback timestamp **Built**. Development is labeled **Local preview**.
+
+Use `npm run version:patch` for fixes/polish or `npm run version:minor` for a new feature, once per release batch. These update the version without making an extra commit or tag. Commit the version with the changes, then build and push as usual. The source hash updates automatically for every build of a new commit; builds never increment the release number themselves. Compare the live site's `/release.json` commit to GitHub to confirm deployment, since a successful push only confirms the source reached GitHub.
+
 ## Requirements
 
 - Node.js 20.19+ or 22.12+
