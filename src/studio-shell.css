@@ -122,6 +122,15 @@ input[type='range'] { accent-color: var(--cyan); }
 .preview-actions { display: flex; gap: 8px; margin-left: auto; }
 .canvas-caption { padding: 14px 20px 17px; display: flex; justify-content: space-between; gap: 18px; color: var(--muted); font: 9px/1.5 var(--display); }
 .canvas-caption span:last-child { white-space: nowrap; }
+.image-sharing { display: flex; align-items: center; gap: 10px; }
+.image-sharing:has(button[hidden]) { display: none; }
+.image-sharing span { max-width: 210px; font: 11px/1.5 var(--display); color: var(--muted); }
+.mobile-preview-return { display: none; }
+.timeline-time-editor { display: grid; grid-template-columns: minmax(140px, 1fr) 120px auto; gap: 12px; padding-top: 16px; margin-top: 16px; border-top: 1px solid var(--line); align-items: end; }
+.timeline-time-editor label { display: grid; gap: 7px; color: var(--muted); font: 12px/1.4 var(--display); }
+.timeline-time-editor input, .timeline-time-editor select { min-width: 0; width: 100%; padding: 9px; background: var(--bg); border: 1px solid var(--line-bright); color: var(--text); border-radius: 6px; }
+.timeline-nudge { display: flex; gap: 8px; }
+.timeline-nudge button { min-height: 38px; padding: 8px 12px; border: 1px solid var(--line-bright); color: var(--text); background: var(--surface-raised); cursor: pointer; }
 .site-footer { min-height: 64px; padding: 12px clamp(20px, 4vw, 56px); background: var(--bg); gap: 18px; }
 .dad-credit { gap: 10px; }
 .dad-credit__mark { width: 30px; height: 29px; font-size: 12px; border-color: var(--line-bright); box-shadow: none; transform: none; }
@@ -205,4 +214,67 @@ input[type='range'] { accent-color: var(--cyan); }
   .empty-state .kicker { display: none; }
   .empty-state h2 { font-size: 22px; }
   .preview-panel { min-height: 430px; }
+}
+
+/* Phone controls have full touch areas; the slider's visible track stays narrow. */
+@media (max-width: 680px), (pointer: coarse) {
+  button, .button, .icon-button, .compact-actions button, .studio-transport button,
+  .timeline-actions button, .timeline-actions select, .editor-panel-switch button,
+  .export-settings select, .timeline-nudge button { min-height: 44px; }
+  input[type='range'] { height: 44px; background: linear-gradient(var(--line), var(--line)) center / 100% 4px no-repeat; touch-action: pan-y; }
+  input[type='range']::-webkit-slider-thumb { width: 26px; height: 28px; border-radius: 8px; border: 2px solid var(--cyan); background: var(--surface-raised); }
+  input[type='range']::-moz-range-thumb { width: 24px; height: 26px; border-radius: 8px; border: 2px solid var(--cyan); background: var(--surface-raised); }
+  input:not([type='range']):not([type='checkbox']):not([type='radio']):not([type='file']), select { font-size: 16px; min-height: 44px; }
+  .toggle-label { min-height: 44px; font-size: 14px; }
+  summary { min-height: 44px; padding-block: 12px; }
+  .timeline-marker { min-width: 44px; width: 44px; height: 44px; top: 9px; touch-action: pan-y; }
+}
+@media (max-width: 680px) {
+  html, body { min-width: 0; }
+  .audio-studio, .retro-lab, .glitch-studio, .audio-studio__grid, .studio-panel { min-width: 0; }
+  .mode-nav { gap: 6px; }
+  .mode-nav .mode-tab { min-height: 48px; font-size: 12px; white-space: normal; text-align: center; }
+  .editor-panel-switch button { font-size: 14px; }
+  .app-shell select, .audio-studio select, .retro-lab select, .glitch-studio select { font-size: 16px; }
+  .preview-toolbar { flex-direction: column; align-items: stretch; gap: 12px; }
+  .preview-toolbar__right { width: 100%; }
+  .history-actions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; width: 100%; }
+  .history-actions .icon-button { min-width: 44px; min-height: 48px; padding: 6px 3px; font-size: 18px; display: flex; flex-direction: column; align-items: center; gap: 3px; background: var(--bg); }
+  .history-actions .icon-button span { display: block; font: 12px/1.3 var(--display); }
+  .preview-title-row h2 { font-size: 17px; }
+  .preview-title-row .status-pill { display: inline-block; font-size: 10px; }
+  .pibby-search-label, .pibby-slider, .pibby-select, .export-settings > label, .editor-advanced, .pibby-notes { font-size: 14px; }
+  .pibby-slider { gap: 0; }
+  .pibby-slider output, .effect-control output { font-size: 13px; }
+  .pibby-select select { max-width: 66%; }
+  .pibby-description, .microcopy, #pibby-status, .studio-message, .retro-message { font-size: 13px; line-height: 1.6; }
+  .pibby-recipes span { font-size: 12px; min-height: 38px; }
+  .pibby-recipes canvas { height: 54px; }
+  .demo-link, .upload-section.has-image .demo-link { font-size: 13px; }
+  .canvas-caption { font-size: 12px; }
+  .preview-footer { flex-wrap: wrap; }
+  .image-sharing { width: 100%; flex-wrap: wrap; padding-bottom: 2px; }
+  .image-sharing span { max-width: none; font-size: 12px; }
+  .preview-actions { gap: 8px; }
+  .preview-actions button { min-width: 0; min-height: 48px; padding-inline: 8px; font-size: 14px; }
+  .mobile-preview-return:not([hidden]) { display: block; }
+  input, select, summary, button { scroll-margin-block: 100px; }
+  body:has(#image-workspace:not([hidden])) .site-footer { padding-bottom: calc(104px + env(safe-area-inset-bottom)); }
+  .studio-transport { display: flex; flex-wrap: wrap; gap: 10px; }
+  .studio-transport button { flex: 1; font-size: 15px; }
+  .studio-transport output { width: 100%; font-size: 12px; }
+  .timeline-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .timeline-actions select { grid-column: 1 / -1; width: 100%; }
+  .timeline-actions button { padding-inline: 6px; font-size: 13px; }
+  .timeline-time-editor { grid-template-columns: 1fr; }
+  .timeline-time-editor label:first-child { grid-column: 1 / -1; }
+  .timeline-nudge button { min-width: 0; flex: 1; padding-inline: 8px; font-size: 14px; }
+  .timeline-heading h2 { font-size: 20px; }
+  .timeline-ruler { font-size: 11px; }
+  .timeline-track { margin-inline: 22px; overflow: visible; }
+  .timeline-marker { font-size: 13px; }
+  .glitch-card label, .studio-effect-row label { font-size: 14px; }
+  .compact-actions { gap: 8px; }
+  .compact-actions button { font-size: 13px; padding-inline: 10px; }
+  .release-stamp__date, .dad-credit small { font-size: 11px; }
 }

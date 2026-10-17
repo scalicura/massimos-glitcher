@@ -2,7 +2,8 @@ import './styles.css';
 import './studio-shell.css';
 import { closeImageSource, formatFileSize, loadImageFile } from './image-io.js';
 import { renderImage, renderSourceImage } from './renderer.js';
-import { exportImage } from './export.js';
+import { exportImage, renderImageFile } from './export.js';
+import { canShareImage, shareImage } from './image-sharing.js';
 import { cloneSettings, defaultSettings, EFFECT_KEYS, PRESETS, settingsForPreset } from './presets.js';
 import { normalizeSeed } from './random/seeded-random.js';
 import { initSoundboard } from './audio/soundboard.js';
@@ -46,6 +47,9 @@ const elements = {
   seedInput: document.querySelector('#seed-input'),
   seedMessage: document.querySelector('#seed-message'),
   newSeedButton: document.querySelector('#new-seed-button'),
+  shareButton: document.querySelector('#share-image'),
+  shareStatus: document.querySelector('#share-image-status'),
+  returnToPreview: document.querySelector('#return-to-preview'),
 };
 
 function assignMascot(selector, source) {
@@ -70,7 +74,12 @@ const state = {
   settings: defaultSettings(),
   historyPast: [],
   historyFuture: [],
+  preparedShare: null,
 };
+let previewIsVisible = true;
+const supportsImageSharing = canShareImage(new File([''], 'glitch.png', { type: 'image/png' }));
+elements.shareButton.hidden = !supportsImageSharing;
+elements.shareStatus.hidden = !supportsImageSharing;
 const rangeHistorySnapshots = new WeakMap();
 
 function valueFromInput(input) {
@@ -192,6 +201,7 @@ function performRender({ synchronous = false } = {}) {
 }
 
 function scheduleRender({ immediate = false } = {}) {
+  syncSharing();
   if (!state.originalImage) return;
   if (state.renderFrame) cancelAnimationFrame(state.renderFrame);
   if (state.renderTimeout) window.clearTimeout(state.renderTimeout);
@@ -201,6 +211,8 @@ function scheduleRender({ immediate = false } = {}) {
 }
 
 function enableEditorControls(enabled) {
+  elements.returnToPreview.hidden = !enabled || previewIsVisible;
+  elements.shareButton.disabled = !enabled || state.isExporting;
   document.querySelector('#pibby-generate').disabled = !enabled;
   document.querySelector('#pibby-fieldset').disabled = !enabled;
   elements.effectsFieldset.disabled = !enabled;
@@ -349,11 +361,77 @@ function updateExportControls() {
   elements.qualityControl.classList.toggle('is-hidden', !hasQuality);
   const label = format === 'jpeg' ? 'JPEG' : format === 'webp' ? 'WebP' : 'PNG';
   elements.exportButton.innerHTML = `Export ${label} <span aria-hidden="true">↓</span>`;
+  syncSharing();
+}
+
+function shareSignature() {
+  return JSON.stringify([state.settings, elements.exportFormat.value, elements.exportQuality.value]);
+}
+
+function syncSharing() {
+  if (state.preparedShare && (state.preparedShare.source !== state.originalImage || state.preparedShare.signature !== shareSignature())) {
+    state.preparedShare = null;
+    elements.shareStatus.textContent = 'Image changed. Prepare it again before sharing.';
+  }
+  elements.shareButton.textContent = state.preparedShare ? 'Share image…' : 'Prepare to share';
+  elements.shareButton.disabled = !state.originalImage || state.isExporting;
+}
+
+function setSharingBusy(busy) {
+  state.isExporting = busy;
+  document.querySelector('#pibby-generate').disabled = busy;
+  document.querySelector('#pibby-demo').disabled = busy;
+  elements.exportButton.disabled = busy;
+  elements.exportFieldset.disabled = busy;
+  elements.compareButton.disabled = busy;
+  updateHistoryButtons();
+  syncSharing();
+}
+
+async function handleShare() {
+  if (!state.originalImage || state.isExporting) return;
+  syncSharing();
+  if (state.preparedShare) {
+    // Invoke the native API before any rendering/await so the tap stays valid.
+    const file = state.preparedShare.file;
+    setSharingBusy(true);
+    try {
+      const shared = await shareImage(file);
+      elements.shareStatus.textContent = shared ? 'Image handed to your share sheet.' : 'Sharing canceled. Your image is still ready.';
+    } catch (error) {
+      elements.shareStatus.textContent = `${error.message} You can still use Export.`;
+    } finally {
+      setSharingBusy(false);
+    }
+    return;
+  }
+  const source = state.originalImage;
+  const signature = shareSignature();
+  setSharingBusy(true);
+  elements.shareStatus.textContent = 'Preparing full-size image…';
+  try {
+    const result = await renderImageFile(source, cloneSettings(state.settings), {
+      format: elements.exportFormat.value, quality: Number(elements.exportQuality.value) / 100,
+    });
+    if (source !== state.originalImage || signature !== shareSignature()) {
+      elements.shareStatus.textContent = 'Image changed. Tap Prepare to share again.';
+    } else if (!canShareImage(result.file)) {
+      elements.shareStatus.textContent = 'This file cannot be shared here. Use Export to save it.';
+    } else {
+      state.preparedShare = { file: result.file, source, signature };
+      elements.shareStatus.textContent = 'Ready. Tap Share image to choose where to save or send it.';
+    }
+  } catch (error) {
+    elements.shareStatus.textContent = `${error.message} You can still use Export.`;
+  } finally {
+    setSharingBusy(false);
+  }
 }
 
 async function handleExport() {
   if (!state.originalImage || state.isExporting) return;
   state.isExporting = true;
+  syncSharing();
   document.querySelector('#pibby-generate').disabled = true;
   document.querySelector('#pibby-demo').disabled = true;
   elements.exportButton.disabled = true;
@@ -381,6 +459,7 @@ async function handleExport() {
     console.error(error);
   } finally {
     state.isExporting = false;
+    syncSharing();
     document.querySelector('#pibby-generate').disabled = false;
     document.querySelector('#pibby-demo').disabled = false;
     elements.exportButton.disabled = false;
@@ -534,6 +613,15 @@ elements.randomizeButton.addEventListener('click', randomizeEffects);
 elements.undoButton.addEventListener('click', undo);
 elements.redoButton.addEventListener('click', redo);
 elements.exportButton.addEventListener('click', handleExport);
+elements.shareButton.addEventListener('click', handleShare);
+elements.returnToPreview.addEventListener('click', () => {
+  elements.previewStage.scrollIntoView({ block: 'center', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+});
+const previewObserver = new IntersectionObserver(([entry]) => {
+  previewIsVisible = entry.isIntersecting && entry.intersectionRatio >= 0.25;
+  elements.returnToPreview.hidden = previewIsVisible || !state.originalImage;
+}, { threshold: 0.25 });
+previewObserver.observe(elements.previewStage);
 elements.seedInput.addEventListener('change', () => setSeed(elements.seedInput.value));
 elements.seedInput.addEventListener('keydown', (event) => {
   if (event.key === 'Enter') {
@@ -574,7 +662,7 @@ document.querySelectorAll('[data-toggle]').forEach((toggle) => {
 });
 
 elements.exportFormat.addEventListener('change', updateExportControls);
-elements.exportQuality.addEventListener('input', () => { elements.exportQualityOutput.value = elements.exportQuality.value; });
+elements.exportQuality.addEventListener('input', () => { elements.exportQualityOutput.value = elements.exportQuality.value; syncSharing(); });
 
 document.addEventListener('keydown', (event) => {
   if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'z') return;
@@ -653,6 +741,7 @@ document.querySelectorAll('[data-workspace-target]').forEach((button) => {
 });
 
 window.addEventListener('beforeunload', () => {
+  previewObserver.disconnect();
   window.clearTimeout(mascotFeedbackTimer);
   closeImageSource(state.originalImage?.source);
   soundboard.destroy();

@@ -374,7 +374,12 @@
               </label>
             </fieldset>
           </div>
+          <div class="image-sharing">
+            <button id="share-image" class="button" type="button" aria-describedby="share-image-status" disabled hidden>Prepare to share</button>
+            <span id="share-image-status" role="status" hidden>Prepare your image, then tap Share to choose where to save or send it.</span>
+          </div>
           <div class="preview-actions">
+            <button id="return-to-preview" class="button mobile-preview-return" type="button" hidden>↑ Preview</button>
             <button id="pibby-generate" class="button button--primary" type="button" disabled>Generate <span aria-hidden="true">↗</span></button>
             <button id="export-button" class="button button--export" type="button" disabled>
               Export PNG <span aria-hidden="true">↓</span>
@@ -758,7 +763,12 @@
               <select id="timeline-event-type" aria-label="Timeline marker type"><option value="glitch">Glitch Burst</option><option value="freeze">Freeze</option><option value="blackout">Blackout</option><option value="flash">Flash</option><option value="text">Text Warning</option></select>
               <button id="timeline-add" type="button">Add marker</button><button id="timeline-duplicate" type="button" disabled>Duplicate</button><button id="timeline-delete" type="button" disabled>Delete</button>
             </div>
-            <p class="microcopy">Arrow keys move the selected marker. Shift + Arrow moves one second.</p>
+            <div class="timeline-time-editor" role="group" aria-label="Edit marker timing">
+              <label>Marker<select id="timeline-selected-event"><option value="">Choose a marker</option></select></label>
+              <label>Time in seconds<input id="timeline-event-time" type="number" inputmode="decimal" min="0" max="3" step="0.01" disabled /></label>
+              <div class="timeline-nudge"><button id="timeline-time-apply" type="button" disabled>Set time</button><button id="timeline-time-back" type="button" aria-label="Move marker earlier by 0.1 seconds" disabled>−0.1s</button><button id="timeline-time-forward" type="button" aria-label="Move marker later by 0.1 seconds" disabled>+0.1s</button></div>
+            </div>
+            <p class="microcopy">Choose a marker, enter seconds, then tap Set time. Tap the rail to move the playhead. Arrow keys also move selected markers.</p>
           </section>
         </section>
       </div>

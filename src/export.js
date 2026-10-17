@@ -68,7 +68,7 @@ function downloadBlob(blob, imageRecord, extension) {
  * OffscreenCanvas worker so expensive exports do not freeze the editor; other
  * browsers fall back to the same deterministic pipeline on the main thread.
  */
-export async function exportImage(imageRecord, settings, { format = 'png', quality = 0.92 } = {}) {
+export async function renderImageFile(imageRecord, settings, { format = 'png', quality = 0.92 } = {}) {
   const selectedFormat = FORMAT_OPTIONS[format];
   if (!selectedFormat) throw new Error(`Unsupported export format: ${format}`);
 
@@ -92,6 +92,14 @@ export async function exportImage(imageRecord, settings, { format = 'png', quali
     blob = await renderOnMainThread(imageRecord, settings, selectedFormat.mime, quality);
   }
 
-  const name = downloadBlob(blob, imageRecord, selectedFormat.extension);
-  return { name, size: blob.size, format: selectedFormat.mime, engine };
+  const baseName = imageRecord.name.replace(/\.[^.]+$/, '') || 'glitched-image';
+  const name = `${baseName}-massimos-glitch.${selectedFormat.extension}`;
+  const file = new File([blob], name, { type: selectedFormat.mime });
+  return { file, name, size: blob.size, format: selectedFormat.mime, engine };
+}
+
+export async function exportImage(imageRecord, settings, options = {}) {
+  const result = await renderImageFile(imageRecord, settings, options);
+  downloadBlob(result.file, imageRecord, FORMAT_OPTIONS[options.format || 'png'].extension);
+  return result;
 }

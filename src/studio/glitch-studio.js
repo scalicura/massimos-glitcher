@@ -49,6 +49,7 @@ export function initGlitchStudio(root, { getSoundboardPads = () => [] } = {}) {
     'broadcast-template', 'guided-theme', 'guided-intensity', 'guided-warning', 'guided-apply', 'scrubber', 'timeline-track',
     'timeline-playhead', 'timeline-markers', 'timeline-ruler', 'timeline-count', 'timeline-event-type', 'timeline-add',
     'timeline-duplicate', 'timeline-delete', 'cue', 'cue-volume', 'cue-volume-output', 'cue-muted', 'add-cue',
+    'timeline-selected-event', 'timeline-event-time', 'timeline-time-apply', 'timeline-time-back', 'timeline-time-forward',
     'project-name', 'unsaved', 'new-project', 'save-project', 'save-as', 'load-projects', 'autosave', 'project-browser',
     'project-list', 'rename-project', 'duplicate-project', 'delete-project', 'export-project', 'import-project', 'project-file',
     'delete-dialog', 'delete-confirm', 'export-resolution', 'export-dimensions', 'export-webm', 'export-frame', 'export-progress', 'export-status',
@@ -163,6 +164,19 @@ export function initGlitchStudio(root, { getSoundboardPads = () => [] } = {}) {
     const markerHost = elements['timeline-markers']; markerHost.replaceChildren();
     elements['timeline-count'].textContent = `${state.settings.events.length} / ${MAX_MARKERS} markers`;
     elements['timeline-duplicate'].disabled = !state.selectedEventId; elements['timeline-delete'].disabled = !state.selectedEventId;
+    const selected = state.settings.events.find((event) => event.id === state.selectedEventId);
+    const picker = elements['timeline-selected-event'];
+    const placeholder = createElement('option', '', 'Choose a marker'); placeholder.value = '';
+    picker.replaceChildren(placeholder);
+    state.settings.events.forEach((event, index) => {
+      const option = createElement('option', '', `${index + 1} · ${TIMELINE_EVENT_LABELS[event.type]} · ${event.time.toFixed(2)}s`);
+      option.value = event.id; picker.append(option);
+    });
+    picker.value = selected?.id || '';
+    picker.disabled = state.settings.events.length === 0;
+    elements['timeline-event-time'].value = selected ? String(selected.time) : '';
+    elements['timeline-event-time'].max = String(state.settings.duration);
+    ['timeline-event-time', 'timeline-time-apply', 'timeline-time-back', 'timeline-time-forward'].forEach((key) => { elements[key].disabled = !selected; });
     state.settings.events.forEach((event) => {
       const button = createElement('button', 'timeline-marker', TIMELINE_EVENT_LABELS[event.type].slice(0, 1));
       button.type = 'button'; button.dataset.type = event.type; button.dataset.eventId = event.id;
@@ -177,17 +191,30 @@ export function initGlitchStudio(root, { getSoundboardPads = () => [] } = {}) {
         event.time += input.key === 'ArrowRight' ? delta : -delta; Object.assign(event, clampTimelineEvent(event, state.settings.duration));
         state.currentTime = event.time; updateDirty(); renderTimeline(); renderCurrent(); markerHost.querySelector(`[data-event-id="${event.id}"]`)?.focus();
       });
-      button.addEventListener('pointerdown', (input) => { state.selectedEventId = event.id; button.setPointerCapture(input.pointerId); });
+      // Touch users select markers by tapping; dragging remains available to a mouse/pen.
+      button.addEventListener('pointerdown', (input) => { if (input.pointerType === 'touch') return; state.selectedEventId = event.id; button.setPointerCapture(input.pointerId); });
       button.addEventListener('pointermove', (input) => {
         if (!button.hasPointerCapture(input.pointerId)) return; const rect = elements['timeline-track'].getBoundingClientRect();
         event.time = Math.max(0, Math.min(state.settings.duration, (input.clientX - rect.left) / rect.width * state.settings.duration));
         state.currentTime = event.time; button.style.left = `${event.time / state.settings.duration * 100}%`; updateTimeUi(); renderCurrent();
       });
-      button.addEventListener('pointerup', (input) => { if (button.hasPointerCapture(input.pointerId)) button.releasePointerCapture(input.pointerId); Object.assign(event, clampTimelineEvent(event, state.settings.duration)); updateDirty(); renderTimeline(); });
+      button.addEventListener('pointerup', (input) => { if (input.pointerType === 'touch') return; if (button.hasPointerCapture(input.pointerId)) button.releasePointerCapture(input.pointerId); Object.assign(event, clampTimelineEvent(event, state.settings.duration)); updateDirty(); renderTimeline(); });
       markerHost.append(button);
     });
     elements['timeline-ruler'].replaceChildren();
     for (let tick = 0; tick <= state.settings.duration; tick += 1) elements['timeline-ruler'].append(createElement('span', '', `${tick}s`));
+  }
+
+  function setSelectedEventTime(value) {
+    const selected = state.settings.events.find((event) => event.id === state.selectedEventId);
+    if (!selected) return;
+    if (String(value).trim() === '' || !Number.isFinite(Number(value))) {
+      announce('Enter a marker time in seconds.', 'error'); renderTimeline(); return;
+    }
+    stopPreview('Marker time updated');
+    Object.assign(selected, clampTimelineEvent({ ...selected, time: Number(value) }, state.settings.duration));
+    state.currentTime = selected.time;
+    updateDirty(); renderTimeline(); renderCurrent();
   }
 
   function addEvent(type = elements['timeline-event-type'].value, cue = '') {
@@ -433,6 +460,17 @@ export function initGlitchStudio(root, { getSoundboardPads = () => [] } = {}) {
   elements.scrubber.addEventListener('input', () => { stopPreview('Scrubbing'); state.currentTime = Number(elements.scrubber.value); renderCurrent(); });
   elements['timeline-track'].addEventListener('click', (event) => { if (event.target.closest('.timeline-marker')) return; const rect = elements['timeline-track'].getBoundingClientRect(); state.currentTime = Math.max(0, Math.min(state.settings.duration, (event.clientX - rect.left) / rect.width * state.settings.duration)); renderCurrent(); });
   elements['timeline-add'].addEventListener('click', () => addEvent()); elements['timeline-duplicate'].addEventListener('click', duplicateSelectedEvent); elements['timeline-delete'].addEventListener('click', removeSelectedEvent);
+  elements['timeline-selected-event'].addEventListener('change', () => {
+    stopPreview('Marker selected');
+    state.selectedEventId = elements['timeline-selected-event'].value;
+    const selected = state.settings.events.find((event) => event.id === state.selectedEventId);
+    if (selected) state.currentTime = selected.time;
+    renderTimeline(); renderCurrent();
+  });
+  elements['timeline-time-apply'].addEventListener('click', () => setSelectedEventTime(elements['timeline-event-time'].value));
+  elements['timeline-event-time'].addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); setSelectedEventTime(elements['timeline-event-time'].value); } });
+  elements['timeline-time-back'].addEventListener('click', () => setSelectedEventTime(Number(elements['timeline-event-time'].value) - 0.1));
+  elements['timeline-time-forward'].addEventListener('click', () => setSelectedEventTime(Number(elements['timeline-event-time'].value) + 0.1));
   elements['add-cue'].addEventListener('click', () => { if (!elements.cue.value) { announce('Choose a cue source first.', 'error'); return; } addEvent('audio', elements.cue.value); });
   elements.duration.addEventListener('change', () => { state.settings.duration = validateDuration(elements.duration.value); state.settings.events = state.settings.events.map((event) => clampTimelineEvent(event, state.settings.duration)); state.currentTime = Math.min(state.currentTime, state.settings.duration); updateDirty(); renderTimeline(); renderCurrent(); });
   elements.fps.addEventListener('change', () => { state.settings.fps = validateFrameRate(elements.fps.value); updateDirty(); renderCurrent(); });
