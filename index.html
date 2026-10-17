@@ -72,6 +72,31 @@
           <p id="upload-error" class="error-message" role="alert" hidden></p>
         </section>
 
+        <section class="panel-section pibby-section" aria-labelledby="pibby-title">
+          <div class="section-heading"><span class="step-number">P</span><div><p class="kicker">Tutorial-inspired recipes</p><h2 id="pibby-title">Pibby Lab</h2></div></div>
+          <p class="pibby-intro">Pick a look. Spread the glitch. Make it yours.</p>
+          <label class="pibby-search-label" for="pibby-search">Find an effect</label>
+          <input id="pibby-search" class="pibby-search" type="search" placeholder="Try darkness, RGB, melt…" />
+          <div id="pibby-recipes" class="pibby-recipes" aria-label="Pibby recipes"></div>
+          <p id="pibby-search-status" class="microcopy" role="status"></p>
+          <p id="pibby-description" class="pibby-description"></p>
+          <button id="pibby-demo" class="button button--small" type="button">Try with Massimo</button>
+          <fieldset id="pibby-fieldset" class="preset-fieldset" disabled>
+            <legend>Corruption controls</legend>
+            <div class="effect-control" data-effect="pibby">
+              <div class="effect-control__top"><label class="toggle-label"><input type="checkbox" data-toggle="pibby" /><span></span> Pibby corruption</label></div>
+              <label class="pibby-slider">Spread <output data-output-param="coverage">45</output><input aria-label="Corruption spread" type="range" min="0" max="100" value="45" data-param="coverage" /></label>
+              <label class="pibby-slider">Pixel size <output data-output-param="blockSize">14</output><input aria-label="Corruption pixel size" type="range" min="4" max="40" value="14" data-param="blockSize" /></label>
+              <label class="pibby-slider">Rainbow <output data-output-param="color">38</output><input aria-label="Corruption rainbow amount" type="range" min="0" max="100" value="38" data-param="color" /></label>
+              <label class="pibby-select">Spread from<select data-param="direction"><option value="bottom">Bottom</option><option value="top">Top</option><option value="left">Left</option><option value="right">Right</option><option value="scattered">Scattered patches</option></select></label>
+              <label class="pibby-select">Texture<select data-param="style"><option value="darkness">Darkness</option><option value="static">Static pixels</option><option value="melt">Stretched pixels</option></select></label>
+            </div>
+            <button id="pibby-generate" class="button button--primary" type="button">Generate new pattern</button>
+          </fieldset>
+          <p id="pibby-status" class="microcopy" role="status">Upload an image or try Massimo to start.</p>
+          <details class="pibby-notes"><summary>How these looks are made</summary><p>Fan-inspired interpretations: a black shape, colorful pixel clusters, channel offsets, and stretched blocks. Every pattern is generated here on your device.</p><a href="https://www.reddit.com/r/Pibby/comments/1ef20kj/" target="_blank" rel="noopener noreferrer">Darkness drawing walkthrough ↗</a><a href="https://www.reddit.com/r/Pibby/comments/r9s900/" target="_blank" rel="noopener noreferrer">Pixel texture &amp; RGB walkthrough ↗</a></details>
+        </section>
+
         <section class="panel-section effects-section">
           <div class="section-heading">
             <span class="step-number">02</span>

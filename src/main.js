@@ -8,6 +8,8 @@ import { initSoundboard } from './audio/soundboard.js';
 import { initYouTubePlayer } from './youtube/youtube-player.js';
 import { initRetroLab } from './retro/retro-lab.js';
 import { initGlitchStudio } from './studio/glitch-studio.js';
+import { PIBBY_RECIPES, searchPibbyRecipes, settingsForPibbyRecipe } from './pibby/catalog.js';
+import { applyPibbyCorruption } from './effects/pibby-corruption.js';
 
 const avatarHappy = new URL('../assets/avatar-happy.png', import.meta.url).href;
 const avatarSurprised = new URL('../assets/avatar-surprised.png', import.meta.url).href;
@@ -195,6 +197,7 @@ function scheduleRender({ immediate = false } = {}) {
 }
 
 function enableEditorControls(enabled) {
+  document.querySelector('#pibby-fieldset').disabled = !enabled;
   elements.effectsFieldset.disabled = !enabled;
   elements.presetFieldset.disabled = !enabled;
   elements.exportFieldset.disabled = !enabled;
@@ -224,6 +227,7 @@ async function handleFile(file) {
     enableEditorControls(true);
     clearHistory();
     scheduleRender({ immediate: true });
+    document.querySelector('#pibby-status').textContent = 'Choose a recipe, then generate a pattern. Sliders update the preview.';
   } catch (error) {
     showError(error instanceof Error ? error.message : 'The image could not be loaded.');
     setStatus(state.originalImage ? 'Signal live' : 'Awaiting image', state.originalImage ? 'ready' : 'idle');
@@ -399,6 +403,91 @@ function setSeed(value, message = '') {
   recordHistory(previous);
   scheduleRender();
 }
+
+let selectedPibbyRecipe = PIBBY_RECIPES[0].id;
+
+function generatePibbyPattern(newSeed = true) {
+  if (!state.originalImage || state.isExporting) return;
+  const previous = cloneSettings(state.settings);
+  if (!state.settings.pibby.enabled) {
+    state.settings = settingsForPibbyRecipe(selectedPibbyRecipe, state.settings.seed);
+  }
+  if (newSeed) state.settings.seed = createSeed();
+  resetComparison();
+  clearActivePreset();
+  syncControlsFromSettings();
+  recordHistory(previous);
+  scheduleRender({ immediate: true });
+  document.querySelector('#pibby-status').textContent = `Pattern generated · seed ${state.settings.seed}. Compare, undo, or export below.`;
+}
+
+function selectPibbyRecipe(recipe) {
+  selectedPibbyRecipe = recipe.id;
+  document.querySelector('#pibby-description').textContent = recipe.description;
+  document.querySelectorAll('[data-pibby-recipe]').forEach((button) => {
+    button.setAttribute('aria-pressed', String(button.dataset.pibbyRecipe === recipe.id));
+  });
+  if (!state.originalImage || state.isExporting) return;
+  const previous = cloneSettings(state.settings);
+  state.settings = settingsForPibbyRecipe(recipe.id, state.settings.seed);
+  resetComparison();
+  clearActivePreset();
+  syncControlsFromSettings();
+  recordHistory(previous);
+  scheduleRender({ immediate: true });
+  document.querySelector('#pibby-status').textContent = `${recipe.label} applied. Adjust the sliders or generate a new pattern.`;
+}
+
+function renderPibbyRecipes() {
+  const recipes = searchPibbyRecipes(document.querySelector('#pibby-search').value);
+  const host = document.querySelector('#pibby-recipes');
+  host.replaceChildren();
+  for (const recipe of recipes) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.pibbyRecipe = recipe.id;
+    button.setAttribute('aria-pressed', String(recipe.id === selectedPibbyRecipe));
+    button.title = recipe.description;
+    const swatch = document.createElement('canvas');
+    swatch.width = 180;
+    swatch.height = 64;
+    swatch.setAttribute('aria-hidden', 'true');
+    const context = swatch.getContext('2d');
+    context.fillStyle = '#8b9aff';
+    context.fillRect(0, 0, 180, 64);
+    context.fillStyle = '#ffe3a9';
+    context.fillRect(65, 10, 50, 54);
+    context.fillStyle = '#192849';
+    context.fillRect(74, 25, 8, 8);
+    context.fillRect(98, 25, 8, 8);
+    applyPibbyCorruption(context, 180, 64, settingsForPibbyRecipe(recipe.id, 3817).pibby, 3817);
+    const label = document.createElement('span');
+    label.textContent = recipe.label;
+    button.append(swatch, label);
+    button.addEventListener('click', () => selectPibbyRecipe(recipe));
+    host.append(button);
+  }
+  document.querySelector('#pibby-search-status').textContent = recipes.length ? `${recipes.length} recipes · select a look to apply` : 'No matching looks. Try pixel, rainbow, RGB, or darkness.';
+}
+
+document.querySelector('#pibby-description').textContent = PIBBY_RECIPES[0].description;
+document.querySelector('#pibby-search').addEventListener('input', renderPibbyRecipes);
+document.querySelector('#pibby-generate').addEventListener('click', () => generatePibbyPattern());
+document.querySelector('#pibby-demo').addEventListener('click', async () => {
+  const button = document.querySelector('#pibby-demo');
+  button.disabled = true;
+  try {
+    const response = await fetch(massimoPixelPortrait);
+    if (!response.ok) throw new Error('The demo image could not be loaded.');
+    await handleFile(new File([await response.blob()], 'massimo-demo.png', { type: 'image/png' }));
+    selectPibbyRecipe(PIBBY_RECIPES.find((recipe) => recipe.id === selectedPibbyRecipe));
+  } catch (error) {
+    showError(error.message);
+  } finally {
+    button.disabled = false;
+  }
+});
+renderPibbyRecipes();
 
 elements.browseButton.addEventListener('click', (event) => { event.stopPropagation(); elements.fileInput.click(); });
 elements.emptyUploadButton.addEventListener('click', () => elements.fileInput.click());

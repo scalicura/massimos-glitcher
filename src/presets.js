@@ -16,11 +16,13 @@ export const EFFECT_KEYS = [
   'regionalColorDrift',
   'blockEcho',
   'signalBand',
+  'pibby',
 ];
 
 const setting = (enabled, value) => ({ enabled, value });
 
 export const EFFECT_DEFAULTS = {
+  pibby: { enabled: false, coverage: 45, blockSize: 14, color: 38, direction: 'bottom', style: 'darkness' },
   rgbShift: setting(false, 12),
   slices: setting(false, 36),
   pixelation: setting(false, 8),

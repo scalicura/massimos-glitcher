@@ -4,6 +4,12 @@ Massimo's Glitcher is a private, browser-based media playground built with Vite,
 
 ## Phase 5: Glitch Studio
 
+### Pibby Lab (Image Editor)
+
+Search six fan-inspired recipes: **The Darkness**, **Rainbow Static**, **Pixel Infection**, **RGB Ghost**, **Corruption Melt**, and **Signal Takeover**. Upload a picture or select **Try with Massimo**, choose a recipe, then adjust spread, pixel size, rainbow amount, direction, and texture. **Generate new pattern** changes the shared seed while retaining the current controls. Selecting a recipe replaces the current effect settings; Undo restores them. Compare, reset, and full-resolution PNG/JPEG/WebP export use the existing image pipeline.
+
+The original procedural textures use a deterministic normalized grid, preserve existing image alpha, and require no downloads or external APIs. These are still-image interpretations of recurring fan tutorial techniques, not exact reproductions or a popularity ranking. Research references: [Darkness drawing walkthrough](https://www.reddit.com/r/Pibby/comments/1ef20kj/) and [pixel texture / RGB technique](https://www.reddit.com/r/Pibby/comments/r9s900/). The in-app recipe search is local; the reference links open externally.
+
 **Glitch Studio** adds two isolated creation modes without turning the app into a general video editor:
 
 - **Animated Glitch** creates deterministic 2, 3, 5, 8, or 10-second loops at 12, 15, 24, or 30 FPS.

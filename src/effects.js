@@ -6,6 +6,7 @@ import { applyFrameTear } from './effects/frame-tear.js';
 import { applyRegionalColorDrift } from './effects/regional-color-drift.js';
 import { applyBlockEcho } from './effects/block-echo.js';
 import { applySignalBandCorruption } from './effects/signal-band-corruption.js';
+import { applyPibbyCorruption } from './effects/pibby-corruption.js';
 
 /** Pixelation is done by shrinking a snapshot, then scaling it back with smoothing off. */
 export function applyPixelation(context, width, height, blockSize) {
@@ -252,4 +253,5 @@ export function applyEffects(context, width, height, settings) {
   if (settings.crt?.enabled) applyCrt(context, width, height, settings.crt.value);
   if (settings.scanlines.enabled) applyScanlines(context, width, height, settings.scanlines.value);
   if (settings.noise.enabled) applyNoise(context, width, height, settings.noise.value, settings.seed);
+  if (settings.pibby?.enabled) applyPibbyCorruption(context, width, height, settings.pibby, settings.seed);
 }
