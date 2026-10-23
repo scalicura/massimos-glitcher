@@ -1,0 +1,194 @@
+{
+  "checkedAt": "2026-10-23T22:19:26.515Z",
+  "host": "max.calicura.net",
+  "client": {
+    "node": "v24.19.0",
+    "openssl": "3.5.7"
+  },
+  "results": [
+    {
+      "offered": "TLSv1",
+      "accepted": false,
+      "error": "04700000:error:0A00042E:SSL routines:ssl3_read_bytes:tlsv1 alert protocol version:openssl\\ssl\\record\\rec_layer_s3.c:918:SSL alert number 70\n"
+    },
+    {
+      "offered": "TLSv1.1",
+      "accepted": false,
+      "error": "04700000:error:0A00042E:SSL routines:ssl3_read_bytes:tlsv1 alert protocol version:openssl\\ssl\\record\\rec_layer_s3.c:918:SSL alert number 70\n"
+    },
+    {
+      "offered": "TLSv1.2",
+      "accepted": true,
+      "authorized": true,
+      "protocol": "TLSv1.2",
+      "cipher": {
+        "name": "ECDHE-ECDSA-AES128-GCM-SHA256",
+        "standardName": "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+        "version": "TLSv1.2"
+      },
+      "chain": [
+        {
+          "subject": {
+            "CN": "max.calicura.net"
+          },
+          "issuer": {
+            "C": "US",
+            "O": "Let's Encrypt",
+            "CN": "YE2"
+          },
+          "validFrom": "Oct  3 15:23:43 2026 GMT",
+          "validTo": "Jan  1 15:23:42 2027 GMT",
+          "fingerprint256": "30:19:BC:9D:35:84:71:D7:9F:55:6B:43:48:35:42:99:61:35:7F:84:02:95:F1:95:FE:3B:6E:17:DF:2B:EB:84",
+          "subjectaltname": "DNS:max.calicura.net"
+        },
+        {
+          "subject": {
+            "C": "US",
+            "O": "Let's Encrypt",
+            "CN": "YE2"
+          },
+          "issuer": {
+            "C": "US",
+            "O": "ISRG",
+            "CN": "Root YE"
+          },
+          "validFrom": "Sep  3 00:00:00 2025 GMT",
+          "validTo": "Sep  2 23:59:59 2028 GMT",
+          "fingerprint256": "97:65:8D:E8:C6:8D:FA:98:AC:E1:E5:02:8A:63:D5:4A:1A:AE:91:1B:3E:21:47:10:76:C6:85:0C:D0:8C:BA:B4"
+        },
+        {
+          "subject": {
+            "C": "US",
+            "O": "ISRG",
+            "CN": "Root YE"
+          },
+          "issuer": {
+            "C": "US",
+            "O": "Internet Security Research Group",
+            "CN": "ISRG Root X2"
+          },
+          "validFrom": "May 13 00:00:00 2026 GMT",
+          "validTo": "Sep  2 23:59:59 2032 GMT",
+          "fingerprint256": "0F:C0:90:1C:CA:2B:AE:9E:9F:DB:B0:2D:50:D0:2F:10:94:F7:B3:66:72:08:69:91:B9:E8:97:62:6D:C4:85:F0"
+        },
+        {
+          "subject": {
+            "C": "US",
+            "O": "Internet Security Research Group",
+            "CN": "ISRG Root X2"
+          },
+          "issuer": {
+            "C": "US",
+            "O": "Internet Security Research Group",
+            "CN": "ISRG Root X1"
+          },
+          "validFrom": "May 13 00:00:00 2026 GMT",
+          "validTo": "Sep  2 23:59:59 2032 GMT",
+          "fingerprint256": "EE:5F:7A:BD:69:81:BB:02:55:63:2C:D8:F4:92:83:45:1B:4B:18:84:4D:12:04:0B:44:EE:00:F0:7B:8F:E2:C6"
+        },
+        {
+          "subject": {
+            "C": "US",
+            "O": "Internet Security Research Group",
+            "CN": "ISRG Root X1"
+          },
+          "issuer": {
+            "C": "US",
+            "O": "Internet Security Research Group",
+            "CN": "ISRG Root X1"
+          },
+          "validFrom": "Jun  4 11:04:38 2015 GMT",
+          "validTo": "Jun  4 11:04:38 2035 GMT",
+          "fingerprint256": "96:BC:EC:06:26:49:76:F3:74:60:77:9A:CF:28:C5:A7:CF:E8:A3:C0:AA:E1:1A:8F:FC:EE:05:C0:BD:DF:08:C6"
+        }
+      ]
+    },
+    {
+      "offered": "TLSv1.3",
+      "accepted": true,
+      "authorized": true,
+      "protocol": "TLSv1.3",
+      "cipher": {
+        "name": "TLS_AES_128_GCM_SHA256",
+        "standardName": "TLS_AES_128_GCM_SHA256",
+        "version": "TLSv1.3"
+      },
+      "chain": [
+        {
+          "subject": {
+            "CN": "max.calicura.net"
+          },
+          "issuer": {
+            "C": "US",
+            "O": "Let's Encrypt",
+            "CN": "YE2"
+          },
+          "validFrom": "Oct  3 15:23:43 2026 GMT",
+          "validTo": "Jan  1 15:23:42 2027 GMT",
+          "fingerprint256": "30:19:BC:9D:35:84:71:D7:9F:55:6B:43:48:35:42:99:61:35:7F:84:02:95:F1:95:FE:3B:6E:17:DF:2B:EB:84",
+          "subjectaltname": "DNS:max.calicura.net"
+        },
+        {
+          "subject": {
+            "C": "US",
+            "O": "Let's Encrypt",
+            "CN": "YE2"
+          },
+          "issuer": {
+            "C": "US",
+            "O": "ISRG",
+            "CN": "Root YE"
+          },
+          "validFrom": "Sep  3 00:00:00 2025 GMT",
+          "validTo": "Sep  2 23:59:59 2028 GMT",
+          "fingerprint256": "97:65:8D:E8:C6:8D:FA:98:AC:E1:E5:02:8A:63:D5:4A:1A:AE:91:1B:3E:21:47:10:76:C6:85:0C:D0:8C:BA:B4"
+        },
+        {
+          "subject": {
+            "C": "US",
+            "O": "ISRG",
+            "CN": "Root YE"
+          },
+          "issuer": {
+            "C": "US",
+            "O": "Internet Security Research Group",
+            "CN": "ISRG Root X2"
+          },
+          "validFrom": "May 13 00:00:00 2026 GMT",
+          "validTo": "Sep  2 23:59:59 2032 GMT",
+          "fingerprint256": "0F:C0:90:1C:CA:2B:AE:9E:9F:DB:B0:2D:50:D0:2F:10:94:F7:B3:66:72:08:69:91:B9:E8:97:62:6D:C4:85:F0"
+        },
+        {
+          "subject": {
+            "C": "US",
+            "O": "Internet Security Research Group",
+            "CN": "ISRG Root X2"
+          },
+          "issuer": {
+            "C": "US",
+            "O": "Internet Security Research Group",
+            "CN": "ISRG Root X1"
+          },
+          "validFrom": "May 13 00:00:00 2026 GMT",
+          "validTo": "Sep  2 23:59:59 2032 GMT",
+          "fingerprint256": "EE:5F:7A:BD:69:81:BB:02:55:63:2C:D8:F4:92:83:45:1B:4B:18:84:4D:12:04:0B:44:EE:00:F0:7B:8F:E2:C6"
+        },
+        {
+          "subject": {
+            "C": "US",
+            "O": "Internet Security Research Group",
+            "CN": "ISRG Root X1"
+          },
+          "issuer": {
+            "C": "US",
+            "O": "Internet Security Research Group",
+            "CN": "ISRG Root X1"
+          },
+          "validFrom": "Jun  4 11:04:38 2015 GMT",
+          "validTo": "Jun  4 11:04:38 2035 GMT",
+          "fingerprint256": "96:BC:EC:06:26:49:76:F3:74:60:77:9A:CF:28:C5:A7:CF:E8:A3:C0:AA:E1:1A:8F:FC:EE:05:C0:BD:DF:08:C6"
+        }
+      ]
+    }
+  ]
+}

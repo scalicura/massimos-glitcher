@@ -2,3 +2,6 @@ allowBuilds:
   esbuild: true
 onlyBuiltDependencies:
   - esbuild
+overrides:
+  # @node-minify/core pins an affected CLI; retain the patched compatible major.
+  glob@10.3.3: 10.5.0
