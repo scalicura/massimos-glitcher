@@ -154,7 +154,7 @@ Each datamosh effect also has an optional local seed. A local value of `0` follo
 
 ## Release stamp and versioning
 
-The **Made by Dad** footer shows the release version, linked source commit, and commit date in Pacific time on desktop and mobile. The header uses the same version from `package.json`. Vite generates the stamp at build time using Netlify's `COMMIT_REF` or local Git metadata, and emits `/release.json` with the exact source identity and build time. If the commit date is unavailable, the footer honestly labels the fallback timestamp **Built**. Development is labeled **Local preview**.
+The **Made by Dad** footer shows the release version, linked source commit, and commit date in Pacific time on desktop and mobile. The header uses the same version from `package.json`. Vite generates the stamp at build time using Git metadata from the Cloudflare build checkout or your local checkout, and emits `/release.json` with the exact source identity and build time. If the commit date is unavailable, the footer honestly labels the fallback timestamp **Built**. Development is labeled **Local preview**.
 
 Use `npm run version:patch` for fixes/polish or `npm run version:minor` for a new feature, once per release batch. These update the version without making an extra commit or tag. Commit the version with the changes, then build and push as usual. The source hash updates automatically for every build of a new commit; builds never increment the release number themselves. Compare the live site's `/release.json` commit to GitHub to confirm deployment, since a successful push only confirms the source reached GitHub.
 
@@ -192,6 +192,8 @@ pnpm preview
 ```
 
 Vite writes the optimized static application to `dist/`. No server-side runtime is required.
+
+Cloudflare Workers Builds runs the tests and deploys `dist/` as static assets on pushes to `main`. [Live site](https://max.calicura.net/)
 
 Run the static validation tests with:
 
